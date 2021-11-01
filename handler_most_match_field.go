@@ -7,28 +7,28 @@ import (
 )
 
 type MostMatchFieldHandler struct {
-	fieldType int
-	countMap  map[string]int
+	analyzeType int
+	countMap    map[string]int
 }
 
-func NewMostMatchFieldHandler(fieldType int) *MostMatchFieldHandler {
+func NewMostMatchFieldHandler(analyzeType int) *MostMatchFieldHandler {
 	return &MostMatchFieldHandler{
-		fieldType: fieldType,
-		countMap:  make(map[string]int),
+		analyzeType: analyzeType,
+		countMap:    make(map[string]int),
 	}
 }
 
 func (handler *MostMatchFieldHandler) input(info *LogInfo) {
 	var field string
-	switch handler.fieldType {
-	case FieldIp:
+	switch handler.analyzeType {
+	case AnalyzeTypeFieldIp:
 		field = info.RemoteAddr
-	case FieldUri:
+	case AnalyzeTypeFieldUri:
 		field = info.Request
-	case FieldUserAgent:
+	case AnalyzeTypeFieldUserAgent:
 		field = info.HttpUserAgent
 	default:
-		panic(errors.New("unknown file type"))
+		panic(errors.New("unknown analyze type"))
 	}
 
 	if _, ok := handler.countMap[field]; ok {

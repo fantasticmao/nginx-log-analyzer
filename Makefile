@@ -3,10 +3,10 @@ BIN_DIR=bin
 VERSION=$(shell cat VERSION)
 BUILD_TIME=$(shell date -u)
 COMMIT_HASH=$(shell git rev-parse --short HEAD)
-GO_BUILD=CGO_ENABLED=0 go build -trimpath -ldflags
-	'-X "github.com/fantasticmao/nginx-json-log-analyze/Version=$(VERSION)" \
-	-X "github.com/fantasticmao/nginx-json-log-analyze/BuildTime=$(BUILD_TIME)" \
-	-X "github.com/fantasticmao/nginx-json-log-analyze/CommitHash=$(COMMIT_HASH)" \
+GO_BUILD=CGO_ENABLED=0 go build -trimpath -ldflags \
+	'-X "main.Version=$(VERSION)" \
+	-X "main.BuildTime=$(BUILD_TIME)" \
+	-X "main.CommitHash=$(COMMIT_HASH)" \
 	-w -s'
 
 PLATFORM_LIST=darwin-amd64 darwin-arm64 linux-amd64 linux-armv5 linux-armv6 linux-armv7 linux-armv8 \

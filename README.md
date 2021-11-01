@@ -18,8 +18,8 @@ relate document: http://nginx.org/en/docs/http/ngx_http_log_module.html#log_form
 ## Supported Statistical Indicators
 
 - [x] PV and UV
-- [x] Most visited URIs
 - [x] Most visited IPs
+- [x] Most visited URIs
 - [x] Most visited User-Agents
 - [x] Most time-cost URIs
 - [ ] Most visited Cities
