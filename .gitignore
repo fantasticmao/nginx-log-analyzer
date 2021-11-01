@@ -1,0 +1,8 @@
+.DS_Store
+bin/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
