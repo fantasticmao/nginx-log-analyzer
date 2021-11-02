@@ -18,6 +18,7 @@ var (
 )
 
 var (
+	Name       = "nginx-json-log-analyzer"
 	Version    string
 	BuildTime  string
 	CommitHash string
@@ -42,9 +43,9 @@ type LogInfo struct {
 }
 
 type Handler interface {
-	input(*LogInfo)
+	input(info *LogInfo)
 
-	output(int)
+	output(limit int)
 }
 
 func init() {
@@ -57,7 +58,7 @@ func init() {
 
 func main() {
 	if showVersion {
-		fmt.Printf("nginx-json-log-analyze %v build at %v on commit %v\n", Version, BuildTime, CommitHash)
+		fmt.Printf("%v %v build at %v on commit %v\n", Name, Version, BuildTime, CommitHash)
 		return
 	}
 

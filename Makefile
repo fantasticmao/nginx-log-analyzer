@@ -1,4 +1,4 @@
-NAME=nginx-json-log-analyze
+NAME=nginx-json-log-analyzer
 BIN_DIR=bin
 VERSION=$(shell cat VERSION)
 BUILD_TIME=$(shell date -u)

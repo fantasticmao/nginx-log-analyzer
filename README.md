@@ -1,4 +1,8 @@
-# Nginx-JSON-Log-Analyze
+# Nginx-JSON-Log-Analyzer
+
+![Go Version](https://img.shields.io/github/go-mod/go-version/fantasticmao/nginx-json-log-analyzer)
+[![Go Report Card](https://goreportcard.com/badge/github.com/fantasticmao/nginx-json-log-analyzer)](https://goreportcard.com/report/github.com/fantasticmao/nginx-json-log-analyzer)
+[![License](https://img.shields.io/github/license/fantasticmao/nginx-json-log-analyzer)](https://github.com/fantasticmao/nginx-json-log-analyzer/blob/main/LICENSE)
 
 ## Nginx Configuration
 
@@ -13,7 +17,7 @@ log_format json_log escape=json '{"time_iso8601":"$time_iso8601",'
 access_log /path/to/access.log json_log
 ```
 
-relate document: http://nginx.org/en/docs/http/ngx_http_log_module.html#log_format
+Related document: http://nginx.org/en/docs/http/ngx_http_log_module.html
 
 ## Supported Statistical Indicators
 
@@ -21,5 +25,8 @@ relate document: http://nginx.org/en/docs/http/ngx_http_log_module.html#log_form
 - [x] Most visited IPs
 - [x] Most visited URIs
 - [x] Most visited User-Agents
-- [x] Most time-cost URIs
+- [ ] Most visited Countries
 - [ ] Most visited Cities
+- [x] Top Average time-cost URIs
+- [ ] Top 99% time-cost URIs
+- [ ] Top 95% time-cost URIs
