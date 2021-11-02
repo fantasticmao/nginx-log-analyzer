@@ -15,6 +15,7 @@ var (
 	logFile     string
 	limit       int
 	analyzeType int
+	percentile  float64
 )
 
 var (
@@ -53,9 +54,10 @@ type Handler interface {
 
 func init() {
 	flag.BoolVar(&showVersion, "v", false, "show current version")
-	flag.StringVar(&logFile, "f", "", "specify JSON log file")
-	flag.IntVar(&limit, "n", 20, "limit lines displayed")
-	flag.IntVar(&analyzeType, "t", 0, "analyze type")
+	flag.StringVar(&logFile, "f", "", "specify nginx json-format log files")
+	flag.IntVar(&limit, "n", 20, "limit the number of lines displayed")
+	flag.IntVar(&analyzeType, "t", 0, "specify the analyze type")
+	flag.Float64Var(&percentile, "p", 95, "specify the percentile value")
 	flag.Parse()
 }
 
@@ -80,7 +82,9 @@ func newHandler(analyzeType int) Handler {
 	case AnalyzeTypeFieldUserAgent:
 		return NewMostMatchFieldHandler(AnalyzeTypeFieldUserAgent)
 	case AnalyzeTypeTimeMeanCostUris:
-		return NewMostTimeMeanCostUrisHandler()
+		return NewTopTimeMeanCostUrisHandler()
+	case AnalyzeTypeTimePercentCostUris:
+		return NewTopTimePercentCostUrisHandler(percentile)
 	default:
 		panic(errors.New("unknown analyze type"))
 	}
