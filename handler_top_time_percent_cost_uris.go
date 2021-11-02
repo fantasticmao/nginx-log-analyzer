@@ -9,7 +9,7 @@ import (
 
 type TopTimePercentCostUrisHandler struct {
 	percentile      float64
-	timeCostListMap map[string][]float32
+	timeCostListMap map[string][]float64
 }
 
 func NewTopTimePercentCostUrisHandler(percentile float64) *TopTimePercentCostUrisHandler {
@@ -18,7 +18,7 @@ func NewTopTimePercentCostUrisHandler(percentile float64) *TopTimePercentCostUri
 	}
 	return &TopTimePercentCostUrisHandler{
 		percentile:      percentile,
-		timeCostListMap: make(map[string][]float32),
+		timeCostListMap: make(map[string][]float64),
 	}
 }
 
@@ -26,17 +26,15 @@ func (handler *TopTimePercentCostUrisHandler) input(info *LogInfo) {
 	if _, ok := handler.timeCostListMap[info.Request]; ok {
 		handler.timeCostListMap[info.Request] = append(handler.timeCostListMap[info.Request], info.RequestTime)
 	} else {
-		array := []float32{info.RequestTime}
+		array := []float64{info.RequestTime}
 		handler.timeCostListMap[info.Request] = array
 	}
 }
 
 func (handler *TopTimePercentCostUrisHandler) output(limit int) {
-	timeCostMap := make(map[string]float32)
+	timeCostMap := make(map[string]float64)
 	for uri, costList := range handler.timeCostListMap {
-		sort.Slice(costList, func(i, j int) bool {
-			return costList[i] < costList[j]
-		})
+		sort.Float64s(costList)
 
 		// according to https://stackoverflow.com/questions/41413544/calculate-percentile-from-a-long-array
 		index := int(math.Ceil(handler.percentile/100*float64(len(costList))) - 1)

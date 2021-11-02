@@ -6,12 +6,12 @@ import (
 )
 
 type TopTimeMeanCostUrisHandler struct {
-	timeCostListMap map[string][]float32
+	timeCostListMap map[string][]float64
 }
 
 func NewTopTimeMeanCostUrisHandler() *TopTimeMeanCostUrisHandler {
 	return &TopTimeMeanCostUrisHandler{
-		timeCostListMap: make(map[string][]float32),
+		timeCostListMap: make(map[string][]float64),
 	}
 }
 
@@ -19,21 +19,19 @@ func (handler *TopTimeMeanCostUrisHandler) input(info *LogInfo) {
 	if _, ok := handler.timeCostListMap[info.Request]; ok {
 		handler.timeCostListMap[info.Request] = append(handler.timeCostListMap[info.Request], info.RequestTime)
 	} else {
-		array := []float32{info.RequestTime}
+		array := []float64{info.RequestTime}
 		handler.timeCostListMap[info.Request] = array
 	}
 }
 
 func (handler *TopTimeMeanCostUrisHandler) output(limit int) {
-	timeCostMap := make(map[string]float32)
+	timeCostMap := make(map[string]float64)
 	for uri, costList := range handler.timeCostListMap {
-		var sum float32 = 0.0
-		var length = 0
+		var sum = 0.0
 		for _, cost := range costList {
 			sum += cost
-			length++
 		}
-		timeCostMap[uri] = sum / float32(length)
+		timeCostMap[uri] = sum / float64(len(costList))
 	}
 
 	keys := make([]string, 0, len(timeCostMap))

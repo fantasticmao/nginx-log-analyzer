@@ -40,7 +40,7 @@ const (
 type LogInfo struct {
 	TimeIso8601   string  `json:"time_iso8601"`
 	RemoteAddr    string  `json:"remote_addr"`
-	RequestTime   float32 `json:"request_time"`
+	RequestTime   float64 `json:"request_time"`
 	Request       string  `json:"request"`
 	Status        int     `json:"status"`
 	BodyBytesSent int32   `json:"body_bytes_sent"`

@@ -18,7 +18,7 @@ func NewMostFrequentStatusHandler() *MostFrequentStatusHandler {
 }
 
 func (handler *MostFrequentStatusHandler) input(info *LogInfo) {
-	if _, ok := handler.statusCountMap[info.Status]; ok {
+	if _, ok1 := handler.statusCountMap[info.Status]; ok1 {
 		handler.statusCountMap[info.Status]++
 		if _, ok2 := handler.statusUriCountMap[info.Status][info.Request]; ok2 {
 			handler.statusUriCountMap[info.Status][info.Request]++
