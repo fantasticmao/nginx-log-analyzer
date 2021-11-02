@@ -12,9 +12,9 @@ import (
 
 var (
 	showVersion bool
-	logFile     string
-	limit       int
+	logFiles    []string
 	analyzeType int
+	limit       int
 	percentile  float64
 )
 
@@ -55,11 +55,11 @@ type Handler interface {
 
 func init() {
 	flag.BoolVar(&showVersion, "v", false, "show current version")
-	flag.StringVar(&logFile, "f", "", "specify nginx json-format log files")
-	flag.IntVar(&limit, "n", 20, "limit the number of lines displayed")
 	flag.IntVar(&analyzeType, "t", 0, "specify the analyze type")
+	flag.IntVar(&limit, "n", 15, "limit the number of lines displayed")
 	flag.Float64Var(&percentile, "p", 95, "specify the percentile value")
 	flag.Parse()
+	logFiles = flag.Args()
 }
 
 func main() {
@@ -69,7 +69,7 @@ func main() {
 	}
 
 	handler := newHandler(analyzeType)
-	process(logFile, handler)
+	process(logFiles, handler)
 }
 
 func newHandler(analyzeType int) Handler {
@@ -93,29 +93,32 @@ func newHandler(analyzeType int) Handler {
 	}
 }
 
-func process(path string, handler Handler) {
-	file, err := os.Open(path)
-	if err != nil {
-		panic(err)
-	}
-
-	var data []byte
-	var logInfo *LogInfo
-	reader := bufio.NewReader(file)
-	for {
-		data, err = reader.ReadBytes('\n')
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			panic(err)
-		}
-
-		logInfo = &LogInfo{}
-		err = json.Unmarshal(data[:len(data)-1], logInfo)
+func process(logFiles []string, handler Handler) {
+	for _, logFile := range logFiles {
+		file, err := os.Open(logFile)
 		if err != nil {
 			panic(err)
 		}
-		handler.input(logInfo)
+
+		var data []byte
+		var logInfo *LogInfo
+		reader := bufio.NewReader(file)
+		for {
+			data, err = reader.ReadBytes('\n')
+			if err == io.EOF {
+				break
+			} else if err != nil {
+				panic(err)
+			}
+
+			logInfo = &LogInfo{}
+			err = json.Unmarshal(data[:len(data)-1], logInfo)
+			if err != nil {
+				panic(err)
+			}
+			handler.input(logInfo)
+		}
 	}
+
 	handler.output(limit)
 }
