@@ -29,5 +29,6 @@ Related document: http://nginx.org/en/docs/http/ngx_http_log_module.html
 | ✅        | 3            | Most visited User-Agents                                                     | $http_user_agent                                                                                    |
 | TODO      | 4            | Most visited User-Countries                                                  | $remote_addr, [MaxMind GeoIP2 Country Database](https://www.maxmind.com/en/geoip2-country-database) |
 | TODO      | 5            | Most visited User-Cities                                                     | $remote_addr, [MaxMind GeoIP2 City Database](https://www.maxmind.com/en/geoip2-city)                |
-| ✅        | 6            | Top mean response-time URIs                                                  | $request, $request_time                                                                             |
-| ✅        | 7            | Top percentile response-time URIs, e.g. p1(min), p50(median), p95, p100(max) | $request, $request_time                                                                             |
+| ✅        | 6            | Most frequent response status                                                | $status, $request                                                                                   |
+| ✅        | 7            | Top mean response-time URIs                                                  | $request, $request_time                                                                             |
+| ✅        | 8            | Top percentile response-time URIs, e.g. p1(min), p50(median), p95, p100(max) | $request, $request_time                                                                             |

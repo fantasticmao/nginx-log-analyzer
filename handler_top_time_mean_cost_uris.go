@@ -46,6 +46,6 @@ func (handler *TopTimeMeanCostUrisHandler) output(limit int) {
 	})
 
 	for i := 0; i < limit && i < len(keys); i++ {
-		fmt.Printf("\"%v\" mean response-time: %v\n", keys[i], timeCostMap[keys[i]])
+		fmt.Printf("\"%v\" mean response-time: %.3f\n", keys[i], timeCostMap[keys[i]])
 	}
 }

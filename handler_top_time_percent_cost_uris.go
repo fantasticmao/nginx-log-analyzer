@@ -53,6 +53,6 @@ func (handler *TopTimePercentCostUrisHandler) output(limit int) {
 	})
 
 	for i := 0; i < limit && i < len(keys); i++ {
-		fmt.Printf("\"%v\" P%.2f response-time: %v\n", keys[i], handler.percentile, timeCostMap[keys[i]])
+		fmt.Printf("\"%v\" P%.2f response-time: %.3f\n", keys[i], handler.percentile, timeCostMap[keys[i]])
 	}
 }

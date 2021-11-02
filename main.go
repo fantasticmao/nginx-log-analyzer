@@ -32,6 +32,7 @@ const (
 	AnalyzeTypeFieldUserAgent
 	AnalyzeTypeFieldUserCountry
 	AnalyzeTypeFieldUserCity
+	AnalyzeTypeResponseStatus
 	AnalyzeTypeTimeMeanCostUris
 	AnalyzeTypeTimePercentCostUris
 )
@@ -81,6 +82,8 @@ func newHandler(analyzeType int) Handler {
 		return NewMostMatchFieldHandler(AnalyzeTypeFieldUri)
 	case AnalyzeTypeFieldUserAgent:
 		return NewMostMatchFieldHandler(AnalyzeTypeFieldUserAgent)
+	case AnalyzeTypeResponseStatus:
+		return NewMostFrequentStatusHandler()
 	case AnalyzeTypeTimeMeanCostUris:
 		return NewTopTimeMeanCostUrisHandler()
 	case AnalyzeTypeTimePercentCostUris:
