@@ -25,11 +25,14 @@ var (
 )
 
 const (
-	AnalyzeTypePvAndUv = iota
+	AnalyzeTypePvUv = iota
 	AnalyzeTypeFieldIp
 	AnalyzeTypeFieldUri
 	AnalyzeTypeFieldUserAgent
-	AnalyzeTypeTimeCostUris
+	AnalyzeTypeFieldUserCountry
+	AnalyzeTypeFieldUserCity
+	AnalyzeTypeTimeMeanCostUris
+	AnalyzeTypeTimePercentCostUris
 )
 
 type LogInfo struct {
@@ -68,7 +71,7 @@ func main() {
 
 func newHandler(analyzeType int) Handler {
 	switch analyzeType {
-	case AnalyzeTypePvAndUv:
+	case AnalyzeTypePvUv:
 		return NewPvAndUvHandler()
 	case AnalyzeTypeFieldIp:
 		return NewMostMatchFieldHandler(AnalyzeTypeFieldIp)
@@ -76,8 +79,8 @@ func newHandler(analyzeType int) Handler {
 		return NewMostMatchFieldHandler(AnalyzeTypeFieldUri)
 	case AnalyzeTypeFieldUserAgent:
 		return NewMostMatchFieldHandler(AnalyzeTypeFieldUserAgent)
-	case AnalyzeTypeTimeCostUris:
-		return NewMostTimeCostUrisHandler()
+	case AnalyzeTypeTimeMeanCostUris:
+		return NewMostTimeMeanCostUrisHandler()
 	default:
 		panic(errors.New("unknown analyze type"))
 	}
