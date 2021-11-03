@@ -91,7 +91,7 @@ func newHandler(analyzeType int) Handler {
 	case AnalyzeTypeTimePercentCostUris:
 		return NewTopTimePercentCostUrisHandler(percentile)
 	default:
-		fatal("unsupported analyze type")
+		fatal("unsupported analyze type: %v\n", analyzeType)
 		return nil
 	}
 }
@@ -105,13 +105,13 @@ func process(logFiles []string, handler Handler) {
 			if err == io.EOF {
 				break
 			} else if err != nil {
-				fatal(err.Error())
+				fatal("read file error: %v\n", err.Error())
 			}
 
 			logInfo := &LogInfo{}
 			err = json.Unmarshal(data[:len(data)-1], logInfo)
 			if err != nil {
-				fatal(err.Error())
+				fatal("json unmarshal error: %v\n", err.Error())
 			}
 			handler.input(logInfo)
 		}
@@ -123,7 +123,7 @@ func process(logFiles []string, handler Handler) {
 func openFile(path string) (*os.File, bool) {
 	file, err := os.Open(path)
 	if err != nil {
-		fatal(err.Error())
+		fatal("open file error: %v\n", err.Error())
 	}
 
 	ext := filepath.Ext(file.Name())
@@ -134,7 +134,7 @@ func readFile(file *os.File, isGzip bool) *bufio.Reader {
 	if isGzip {
 		gzipReader, err := gzip.NewReader(file)
 		if err != nil {
-			fatal(err.Error())
+			fatal("gzip new reader error: %v\n", err.Error())
 		}
 		return bufio.NewReader(gzipReader)
 	} else {
@@ -142,7 +142,7 @@ func readFile(file *os.File, isGzip bool) *bufio.Reader {
 	}
 }
 
-func fatal(a ...interface{}) {
-	_, _ = fmt.Fprintln(os.Stderr, a)
+func fatal(format string, a ...interface{}) {
+	_, _ = fmt.Fprintf(os.Stderr, format, a)
 	os.Exit(1)
 }
