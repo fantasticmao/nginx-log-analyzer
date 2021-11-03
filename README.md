@@ -14,7 +14,16 @@ log_format json_log escape=json '{"time_iso8601":"$time_iso8601",'
                                 '"status":$status,'
                                 '"body_bytes_sent":$body_bytes_sent,'
                                 '"http_user_agent":"$http_user_agent"}';
-access_log /path/to/access.json json_log
+access_log /path/to/access.json json_log;
+```
+
+The `log_format` directive can only appear in the `http` context.
+
+The `access_log` directive should use the log format declared above, and you can make multiple `access_log`s at the same time without deleting the original configuration. e.g.
+
+```text
+access_log /path/to/access.log;
+access_log /path/to/access.json json_log;
 ```
 
 Related document: http://nginx.org/en/docs/http/ngx_http_log_module.html
