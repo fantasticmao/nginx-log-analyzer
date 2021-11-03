@@ -2,12 +2,14 @@ package main
 
 import (
 	"bufio"
+	"compress/gzip"
 	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
+	"strings"
 )
 
 var (
@@ -89,36 +91,58 @@ func newHandler(analyzeType int) Handler {
 	case AnalyzeTypeTimePercentCostUris:
 		return NewTopTimePercentCostUrisHandler(percentile)
 	default:
-		panic(errors.New("unknown analyze type"))
+		fatal("unsupported analyze type")
+		return nil
 	}
 }
 
 func process(logFiles []string, handler Handler) {
 	for _, logFile := range logFiles {
-		file, err := os.Open(logFile)
-		if err != nil {
-			panic(err)
-		}
-
-		var data []byte
-		var logInfo *LogInfo
-		reader := bufio.NewReader(file)
+		file, isGzip := openFile(logFile)
+		reader := readFile(file, isGzip)
 		for {
-			data, err = reader.ReadBytes('\n')
+			data, err := reader.ReadBytes('\n')
 			if err == io.EOF {
 				break
 			} else if err != nil {
-				panic(err)
+				fatal(err.Error())
 			}
 
-			logInfo = &LogInfo{}
+			logInfo := &LogInfo{}
 			err = json.Unmarshal(data[:len(data)-1], logInfo)
 			if err != nil {
-				panic(err)
+				fatal(err.Error())
 			}
 			handler.input(logInfo)
 		}
 	}
 
 	handler.output(limit)
+}
+
+func openFile(path string) (*os.File, bool) {
+	file, err := os.Open(path)
+	if err != nil {
+		fatal(err.Error())
+	}
+
+	ext := filepath.Ext(file.Name())
+	return file, strings.EqualFold(".gz", ext)
+}
+
+func readFile(file *os.File, isGzip bool) *bufio.Reader {
+	if isGzip {
+		gzipReader, err := gzip.NewReader(file)
+		if err != nil {
+			fatal(err.Error())
+		}
+		return bufio.NewReader(gzipReader)
+	} else {
+		return bufio.NewReader(file)
+	}
+}
+
+func fatal(a ...interface{}) {
+	_, _ = fmt.Fprintln(os.Stderr, a)
+	os.Exit(1)
 }
