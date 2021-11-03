@@ -19,8 +19,8 @@ var (
 	analyzeType int
 	limit       int
 	percentile  float64
-	timeStart   string
-	timeEnd     string
+	timeAfter   string
+	timeBefore  string
 )
 
 var (
@@ -61,10 +61,10 @@ type Handler interface {
 func init() {
 	flag.BoolVar(&showVersion, "v", false, "show current version")
 	flag.IntVar(&analyzeType, "t", 0, "specify the analyze type")
-	flag.IntVar(&limit, "n", 15, "limit the number of lines printed")
+	flag.IntVar(&limit, "n", 15, "limit the output number lines")
 	flag.Float64Var(&percentile, "p", 95, "specify the percentile value in '-t 8' mode")
-	flag.StringVar(&timeStart, "ts", "", "specify the analyze start time, in format of '2006-01-02T15:04:05Z07:00'")
-	flag.StringVar(&timeEnd, "te", "", "specify the analyze end time, in format of '2006-01-02T15:04:05Z07:00'")
+	flag.StringVar(&timeAfter, "ta", "", "specify the analyze start time, in format of '2006-01-02T15:04:05Z07:00'")
+	flag.StringVar(&timeBefore, "tb", "", "specify the analyze end time, in format of '2006-01-02T15:04:05Z07:00'")
 	flag.Parse()
 	logFiles = flag.Args()
 }
@@ -76,18 +76,18 @@ func main() {
 	}
 
 	var (
-		start, end time.Time
-		err        error
+		since, util time.Time
+		err         error
 	)
-	if timeStart != "" {
-		start, err = time.Parse(time.RFC3339, timeStart)
+	if timeAfter != "" {
+		since, err = time.Parse(time.RFC3339, timeAfter)
 		if err != nil {
 			fatal("parse start time error: %v\n", err.Error())
 			return
 		}
 	}
-	if timeEnd != "" {
-		end, err = time.Parse(time.RFC3339, timeEnd)
+	if timeBefore != "" {
+		util, err = time.Parse(time.RFC3339, timeBefore)
 		if err != nil {
 			fatal("parse end time error: %v\n", err.Error())
 			return
@@ -95,7 +95,7 @@ func main() {
 	}
 
 	handler := newHandler(analyzeType)
-	process(logFiles, handler, start, end)
+	process(logFiles, handler, since, util)
 }
 
 func newHandler(analyzeType int) Handler {
@@ -120,7 +120,7 @@ func newHandler(analyzeType int) Handler {
 	}
 }
 
-func process(logFiles []string, handler Handler, start, end time.Time) {
+func process(logFiles []string, handler Handler, since, util time.Time) {
 nextFile:
 	for _, logFile := range logFiles {
 		// 1. open and read file
@@ -149,11 +149,11 @@ nextFile:
 				fatal("parse log time error: %v\n", err.Error())
 				continue
 			}
-			if !start.IsZero() && logTime.Before(start) {
+			if !since.IsZero() && logTime.Before(since) {
 				// go to next line
 				continue
 			}
-			if !end.IsZero() && logTime.After(end) {
+			if !util.IsZero() && logTime.After(util) {
 				// go to next file
 				break nextFile
 			}
