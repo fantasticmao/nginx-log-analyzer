@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 var (
@@ -18,6 +19,8 @@ var (
 	analyzeType int
 	limit       int
 	percentile  float64
+	timeStart   string
+	timeEnd     string
 )
 
 var (
@@ -58,8 +61,10 @@ type Handler interface {
 func init() {
 	flag.BoolVar(&showVersion, "v", false, "show current version")
 	flag.IntVar(&analyzeType, "t", 0, "specify the analyze type")
-	flag.IntVar(&limit, "n", 15, "limit the number of lines displayed")
-	flag.Float64Var(&percentile, "p", 95, "specify the percentile value")
+	flag.IntVar(&limit, "n", 15, "limit the number of lines printed")
+	flag.Float64Var(&percentile, "p", 95, "specify the percentile value in '-t 8' mode")
+	flag.StringVar(&timeStart, "ts", "", "specify the analyze start time, in format of '2006-01-02T15:04:05Z07:00'")
+	flag.StringVar(&timeEnd, "te", "", "specify the analyze end time, in format of '2006-01-02T15:04:05Z07:00'")
 	flag.Parse()
 	logFiles = flag.Args()
 }
@@ -70,8 +75,27 @@ func main() {
 		return
 	}
 
+	var (
+		start, end time.Time
+		err        error
+	)
+	if timeStart != "" {
+		start, err = time.Parse(time.RFC3339, timeStart)
+		if err != nil {
+			fatal("parse start time error: %v\n", err.Error())
+			return
+		}
+	}
+	if timeEnd != "" {
+		end, err = time.Parse(time.RFC3339, timeEnd)
+		if err != nil {
+			fatal("parse end time error: %v\n", err.Error())
+			return
+		}
+	}
+
 	handler := newHandler(analyzeType)
-	process(logFiles, handler)
+	process(logFiles, handler, start, end)
 }
 
 func newHandler(analyzeType int) Handler {
@@ -96,8 +120,10 @@ func newHandler(analyzeType int) Handler {
 	}
 }
 
-func process(logFiles []string, handler Handler) {
+func process(logFiles []string, handler Handler, start, end time.Time) {
+nextFile:
 	for _, logFile := range logFiles {
+		// 1. open and read file
 		file, isGzip := openFile(logFile)
 		reader := readFile(file, isGzip)
 		for {
@@ -106,17 +132,38 @@ func process(logFiles []string, handler Handler) {
 				break
 			} else if err != nil {
 				fatal("read file error: %v\n", err.Error())
+				return
 			}
 
+			// 2. parse json
 			logInfo := &LogInfo{}
 			err = json.Unmarshal(data[:len(data)-1], logInfo)
 			if err != nil {
 				fatal("json unmarshal error: %v\n", err.Error())
+				continue
 			}
+
+			// 3. time filter
+			logTime, err := time.Parse(time.RFC3339, logInfo.TimeIso8601)
+			if err != nil {
+				fatal("parse log time error: %v\n", err.Error())
+				continue
+			}
+			if !start.IsZero() && logTime.Before(start) {
+				// go to next line
+				continue
+			}
+			if !end.IsZero() && logTime.After(end) {
+				// go to next file
+				break nextFile
+			}
+
+			// 4. process data
 			handler.input(logInfo)
 		}
 	}
 
+	// 5. print result
 	handler.output(limit)
 }
 
@@ -124,6 +171,7 @@ func openFile(path string) (*os.File, bool) {
 	file, err := os.Open(path)
 	if err != nil {
 		fatal("open file error: %v\n", err.Error())
+		return nil, false
 	}
 
 	ext := filepath.Ext(file.Name())
@@ -135,6 +183,7 @@ func readFile(file *os.File, isGzip bool) *bufio.Reader {
 		gzipReader, err := gzip.NewReader(file)
 		if err != nil {
 			fatal("gzip new reader error: %v\n", err.Error())
+			return nil
 		}
 		return bufio.NewReader(gzipReader)
 	} else {
