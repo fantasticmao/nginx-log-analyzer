@@ -14,7 +14,7 @@ log_format json_log escape=json '{"time_iso8601":"$time_iso8601",'
                                 '"status":$status,'
                                 '"body_bytes_sent":$body_bytes_sent,'
                                 '"http_user_agent":"$http_user_agent"}';
-access_log /path/to/access.log json_log
+access_log /path/to/access.json json_log
 ```
 
 Related document: http://nginx.org/en/docs/http/ngx_http_log_module.html
