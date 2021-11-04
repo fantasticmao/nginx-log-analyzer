@@ -1,7 +1,8 @@
-package main
+package handler
 
 import (
 	"fmt"
+	"github.com/fantasticmao/nginx-json-log-analyzer/ioutil"
 	"sort"
 )
 
@@ -17,7 +18,7 @@ func NewMostFrequentStatusHandler() *MostFrequentStatusHandler {
 	}
 }
 
-func (handler *MostFrequentStatusHandler) input(info *LogInfo) {
+func (handler *MostFrequentStatusHandler) Input(info *ioutil.LogInfo) {
 	if _, ok1 := handler.statusCountMap[info.Status]; ok1 {
 		handler.statusCountMap[info.Status]++
 		if _, ok2 := handler.statusUriCountMap[info.Status][info.Request]; ok2 {
@@ -32,7 +33,7 @@ func (handler *MostFrequentStatusHandler) input(info *LogInfo) {
 	}
 }
 
-func (handler *MostFrequentStatusHandler) output(limit int) {
+func (handler *MostFrequentStatusHandler) Output(limit int) {
 	statusCountKeys := make([]int, 0, len(handler.statusCountMap))
 	for k := range handler.statusCountMap {
 		statusCountKeys = append(statusCountKeys, k)

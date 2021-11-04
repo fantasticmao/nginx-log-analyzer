@@ -1,15 +1,12 @@
 package main
 
 import (
-	"bufio"
-	"compress/gzip"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/fantasticmao/nginx-json-log-analyzer/handler"
+	"github.com/fantasticmao/nginx-json-log-analyzer/ioutil"
 	"io"
-	"os"
-	"path/filepath"
-	"strings"
 	"time"
 )
 
@@ -29,34 +26,6 @@ var (
 	BuildTime  string
 	CommitHash string
 )
-
-const (
-	AnalyzeTypePvUv = iota
-	AnalyzeTypeFieldIp
-	AnalyzeTypeFieldUri
-	AnalyzeTypeFieldUserAgent
-	AnalyzeTypeFieldUserCountry
-	AnalyzeTypeFieldUserCity
-	AnalyzeTypeResponseStatus
-	AnalyzeTypeTimeMeanCostUris
-	AnalyzeTypeTimePercentCostUris
-)
-
-type LogInfo struct {
-	TimeIso8601   string  `json:"time_iso8601"`
-	RemoteAddr    string  `json:"remote_addr"`
-	RequestTime   float64 `json:"request_time"`
-	Request       string  `json:"request"`
-	Status        int     `json:"status"`
-	BodyBytesSent int32   `json:"body_bytes_sent"`
-	HttpUserAgent string  `json:"http_user_agent"`
-}
-
-type Handler interface {
-	input(info *LogInfo)
-
-	output(limit int)
-}
 
 func init() {
 	flag.BoolVar(&showVersion, "v", false, "show current version")
@@ -82,71 +51,49 @@ func main() {
 	if timeAfter != "" {
 		since, err = time.Parse(time.RFC3339, timeAfter)
 		if err != nil {
-			fatal("parse start time error: %v\n", err.Error())
+			ioutil.Fatal("parse start time error: %v\n", err.Error())
 			return
 		}
 	}
 	if timeBefore != "" {
 		util, err = time.Parse(time.RFC3339, timeBefore)
 		if err != nil {
-			fatal("parse end time error: %v\n", err.Error())
+			ioutil.Fatal("parse end time error: %v\n", err.Error())
 			return
 		}
 	}
 
-	handler := newHandler(analyzeType)
-	process(logFiles, handler, since, util)
+	h := handler.NewHandler(analyzeType, percentile)
+	process(logFiles, h, since, util)
 }
 
-func newHandler(analyzeType int) Handler {
-	switch analyzeType {
-	case AnalyzeTypePvUv:
-		return NewPvAndUvHandler()
-	case AnalyzeTypeFieldIp:
-		return NewMostMatchFieldHandler(AnalyzeTypeFieldIp)
-	case AnalyzeTypeFieldUri:
-		return NewMostMatchFieldHandler(AnalyzeTypeFieldUri)
-	case AnalyzeTypeFieldUserAgent:
-		return NewMostMatchFieldHandler(AnalyzeTypeFieldUserAgent)
-	case AnalyzeTypeResponseStatus:
-		return NewMostFrequentStatusHandler()
-	case AnalyzeTypeTimeMeanCostUris:
-		return NewTopTimeMeanCostUrisHandler()
-	case AnalyzeTypeTimePercentCostUris:
-		return NewTopTimePercentCostUrisHandler(percentile)
-	default:
-		fatal("unsupported analyze type: %v\n", analyzeType)
-		return nil
-	}
-}
-
-func process(logFiles []string, handler Handler, since, util time.Time) {
+func process(logFiles []string, h handler.Handler, since, util time.Time) {
 nextFile:
 	for _, logFile := range logFiles {
 		// 1. open and read file
-		file, isGzip := openFile(logFile)
-		reader := readFile(file, isGzip)
+		file, isGzip := ioutil.OpenFile(logFile)
+		reader := ioutil.ReadFile(file, isGzip)
 		for {
 			data, err := reader.ReadBytes('\n')
 			if err == io.EOF {
 				break
 			} else if err != nil {
-				fatal("read file error: %v\n", err.Error())
+				ioutil.Fatal("read file error: %v\n", err.Error())
 				return
 			}
 
 			// 2. parse json
-			logInfo := &LogInfo{}
+			logInfo := &ioutil.LogInfo{}
 			err = json.Unmarshal(data[:len(data)-1], logInfo)
 			if err != nil {
-				fatal("json unmarshal error: %v\n", err.Error())
+				ioutil.Fatal("json unmarshal error: %v\n", err.Error())
 				continue
 			}
 
 			// 3. time filter
 			logTime, err := time.Parse(time.RFC3339, logInfo.TimeIso8601)
 			if err != nil {
-				fatal("parse log time error: %v\n", err.Error())
+				ioutil.Fatal("parse log time error: %v\n", err.Error())
 				continue
 			}
 			if !since.IsZero() && logTime.Before(since) {
@@ -159,39 +106,10 @@ nextFile:
 			}
 
 			// 4. process data
-			handler.input(logInfo)
+			h.Input(logInfo)
 		}
 	}
 
 	// 5. print result
-	handler.output(limit)
-}
-
-func openFile(path string) (*os.File, bool) {
-	file, err := os.Open(path)
-	if err != nil {
-		fatal("open file error: %v\n", err.Error())
-		return nil, false
-	}
-
-	ext := filepath.Ext(file.Name())
-	return file, strings.EqualFold(".gz", ext)
-}
-
-func readFile(file *os.File, isGzip bool) *bufio.Reader {
-	if isGzip {
-		gzipReader, err := gzip.NewReader(file)
-		if err != nil {
-			fatal("gzip new reader error: %v\n", err.Error())
-			return nil
-		}
-		return bufio.NewReader(gzipReader)
-	} else {
-		return bufio.NewReader(file)
-	}
-}
-
-func fatal(format string, a ...interface{}) {
-	_, _ = fmt.Fprintf(os.Stderr, format, a)
-	os.Exit(1)
+	h.Output(limit)
 }

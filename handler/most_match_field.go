@@ -1,8 +1,9 @@
-package main
+package handler
 
 import (
 	"errors"
 	"fmt"
+	"github.com/fantasticmao/nginx-json-log-analyzer/ioutil"
 	"sort"
 )
 
@@ -18,7 +19,7 @@ func NewMostMatchFieldHandler(analyzeType int) *MostMatchFieldHandler {
 	}
 }
 
-func (handler *MostMatchFieldHandler) input(info *LogInfo) {
+func (handler *MostMatchFieldHandler) Input(info *ioutil.LogInfo) {
 	var field string
 	switch handler.analyzeType {
 	case AnalyzeTypeFieldIp:
@@ -38,7 +39,7 @@ func (handler *MostMatchFieldHandler) input(info *LogInfo) {
 	}
 }
 
-func (handler *MostMatchFieldHandler) output(limit int) {
+func (handler *MostMatchFieldHandler) Output(limit int) {
 	keys := make([]string, 0, len(handler.countMap))
 	for k := range handler.countMap {
 		keys = append(keys, k)
