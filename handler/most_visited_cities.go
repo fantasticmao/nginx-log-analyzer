@@ -12,8 +12,12 @@ import (
 
 const dbFile string = "City.mmdb"
 const (
-	LanguageEn   = "en"
-	LanguageZhCn = "zh-CN"
+	countryChina = "China"
+	cityUnknown  = "unknown"
+)
+const (
+	languageEn   = "en"
+	languageZhCn = "zh-CN"
 )
 
 type MostVisitedCities struct {
@@ -42,34 +46,37 @@ func NewMostVisitedCities(configDir string) *MostVisitedCities {
 func (handler *MostVisitedCities) Input(info *ioutil.LogInfo) {
 	ip := net.ParseIP(info.RemoteAddr)
 	record, err := handler.geoLite2Db.City(ip)
+	if record == nil {
+		ioutil.Fatal("query from %v error: %v\n", dbFile, "record is nil")
+		return
+	}
 	if err != nil {
 		ioutil.Fatal("query from %v error: %v\n", dbFile, err.Error())
 	}
 
-	var (
-		country string
-		city    string
-	)
-	country = record.Country.Names[LanguageEn]
-	if strings.EqualFold("China", country) {
-		country = record.Country.Names[LanguageZhCn]
-		city = record.City.Names[LanguageZhCn]
-	} else {
-		city = record.City.Names[LanguageEn]
-	}
+	country := record.Country.Names[languageEn]
+	city := record.City.Names[languageEn]
 	if city == "" {
-		city = "unknown"
+		city = cityUnknown
 	}
 
+	if strings.EqualFold(countryChina, country) {
+		country = fmt.Sprintf("%s %s", record.Country.Names[languageZhCn], country)
+		if city != cityUnknown {
+			city = fmt.Sprintf("%s %s", record.City.Names[languageZhCn], city)
+		}
+	}
+
+	// save or update by country
 	if _, ok := handler.countryCityIpCountMap[country]; !ok {
 		cityIpCountMap := make(map[string]map[string]int)
 		handler.countryCityIpCountMap[country] = cityIpCountMap
 		handler.countryCountMap[country] = 1
-		handler.cityCountMap[city] = 0
 	} else {
 		handler.countryCountMap[country]++
 	}
 
+	// save or update by city
 	if _, ok := handler.countryCityIpCountMap[country][city]; !ok {
 		ipCountMap := make(map[string]int)
 		handler.countryCityIpCountMap[country][city] = ipCountMap
@@ -78,6 +85,7 @@ func (handler *MostVisitedCities) Input(info *ioutil.LogInfo) {
 		handler.cityCountMap[city]++
 	}
 
+	// save or update by ip address
 	if _, ok := handler.countryCityIpCountMap[country][city][info.RemoteAddr]; !ok {
 		handler.countryCityIpCountMap[country][city][info.RemoteAddr] = 1
 	} else {
@@ -88,7 +96,7 @@ func (handler *MostVisitedCities) Input(info *ioutil.LogInfo) {
 func (handler *MostVisitedCities) Output(limit int) {
 	defer handler.geoLite2Db.Close()
 
-	countryCountKeys := make([]string, len(handler.countryCountMap))
+	countryCountKeys := make([]string, 0, len(handler.countryCityIpCountMap))
 	for k := range handler.countryCityIpCountMap {
 		countryCountKeys = append(countryCountKeys, k)
 	}
@@ -101,7 +109,7 @@ func (handler *MostVisitedCities) Output(limit int) {
 		cityIpCountMap := handler.countryCityIpCountMap[country]
 		fmt.Printf("[%v] hits: %v\n", country, handler.countryCountMap[country])
 
-		cityCountKeys := make([]string, len(handler.cityCountMap))
+		cityCountKeys := make([]string, 0, len(cityIpCountMap))
 		for k := range cityIpCountMap {
 			cityCountKeys = append(cityCountKeys, k)
 		}
@@ -114,7 +122,7 @@ func (handler *MostVisitedCities) Output(limit int) {
 			ipCountMap := cityIpCountMap[city]
 			fmt.Printf("  |--[%v] hits: %v\n", city, handler.cityCountMap[city])
 
-			ipCountKeys := make([]string, len(ipCountMap))
+			ipCountKeys := make([]string, 0, len(ipCountMap))
 			for k := range ipCountMap {
 				ipCountKeys = append(ipCountKeys, k)
 			}
@@ -124,7 +132,8 @@ func (handler *MostVisitedCities) Output(limit int) {
 			})
 
 			for k := 0; k < limit && k < len(ipCountKeys); k++ {
-				fmt.Printf("  |  |--\"%v\" hits: %v\n", ipCountKeys[k], ipCountMap[ipCountKeys[k]])
+				ip := ipCountKeys[k]
+				fmt.Printf("  |  |--\"%v\" hits: %v\n", ip, ipCountMap[ip])
 			}
 		}
 	}
