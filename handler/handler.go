@@ -7,7 +7,6 @@ const (
 	AnalyzeTypeFieldIp
 	AnalyzeTypeFieldUri
 	AnalyzeTypeFieldUserAgent
-	AnalyzeTypeFieldUserCountry
 	AnalyzeTypeFieldUserCity
 	AnalyzeTypeResponseStatus
 	AnalyzeTypeTimeMeanCostUris
@@ -20,7 +19,7 @@ type Handler interface {
 	Output(limit int)
 }
 
-func NewHandler(analyzeType int, percentile float64) Handler {
+func NewHandler(configDir string, analyzeType int, percentile float64) Handler {
 	switch analyzeType {
 	case AnalyzeTypePvUv:
 		return NewPvAndUvHandler()
@@ -30,6 +29,8 @@ func NewHandler(analyzeType int, percentile float64) Handler {
 		return NewMostMatchFieldHandler(AnalyzeTypeFieldUri)
 	case AnalyzeTypeFieldUserAgent:
 		return NewMostMatchFieldHandler(AnalyzeTypeFieldUserAgent)
+	case AnalyzeTypeFieldUserCity:
+		return NewMostVisitedCities(configDir)
 	case AnalyzeTypeResponseStatus:
 		return NewMostFrequentStatusHandler()
 	case AnalyzeTypeTimeMeanCostUris:

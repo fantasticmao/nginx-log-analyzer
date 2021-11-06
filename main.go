@@ -7,12 +7,15 @@ import (
 	"github.com/fantasticmao/nginx-json-log-analyzer/handler"
 	"github.com/fantasticmao/nginx-json-log-analyzer/ioutil"
 	"io"
+	"os"
+	"path"
 	"time"
 )
 
 var (
-	showVersion bool
 	logFiles    []string
+	showVersion bool
+	configDir   string
 	analyzeType int
 	limit       int
 	percentile  float64
@@ -29,6 +32,7 @@ var (
 
 func init() {
 	flag.BoolVar(&showVersion, "v", false, "show current version")
+	flag.StringVar(&configDir, "d", "", "specify the configuration directory")
 	flag.IntVar(&analyzeType, "t", 0, "specify the analyze type")
 	flag.IntVar(&limit, "n", 15, "limit the output number lines")
 	flag.Float64Var(&percentile, "p", 95, "specify the percentile value in '-t 8' mode")
@@ -42,6 +46,14 @@ func main() {
 	if showVersion {
 		fmt.Printf("%v %v build at %v on commit %v\n", Name, Version, BuildTime, CommitHash)
 		return
+	}
+
+	if configDir == "" {
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			ioutil.Fatal("get user home directory error: %v\n", err.Error())
+		}
+		configDir = path.Join(homeDir, ".config", Name)
 	}
 
 	var (
@@ -63,7 +75,7 @@ func main() {
 		}
 	}
 
-	h := handler.NewHandler(analyzeType, percentile)
+	h := handler.NewHandler(configDir, analyzeType, percentile)
 	process(logFiles, h, since, util)
 }
 
@@ -107,6 +119,12 @@ nextFile:
 
 			// 4. process data
 			h.Input(logInfo)
+		}
+
+		// 5. close file handler
+		err := file.Close()
+		if err != nil {
+			ioutil.Fatal("close file error: %v\n", err.Error())
 		}
 	}
 
