@@ -39,6 +39,7 @@ func TestPvAndUv(t *testing.T) {
 	handler.Input(&ioutil.LogInfo{RemoteAddr: ip2})
 	handler.Input(&ioutil.LogInfo{RemoteAddr: ip3})
 	handler.Output(limit)
+
 	assert.Equal(t, int32(6), handler.pv)
 	assert.Equal(t, int32(3), handler.uv)
 }
@@ -52,6 +53,7 @@ func TestMostMatchFieldIp(t *testing.T) {
 	handler.Input(&ioutil.LogInfo{RemoteAddr: ip2})
 	handler.Input(&ioutil.LogInfo{RemoteAddr: ip3})
 	handler.Output(limit)
+
 	assert.Equal(t, 3, handler.countMap[ip1])
 	assert.Equal(t, 2, handler.countMap[ip2])
 	assert.Equal(t, 1, handler.countMap[ip3])
@@ -66,6 +68,7 @@ func TestMostMatchFieldUri(t *testing.T) {
 	handler.Input(&ioutil.LogInfo{Request: uri2})
 	handler.Input(&ioutil.LogInfo{Request: uri3})
 	handler.Output(limit)
+
 	assert.Equal(t, 3, handler.countMap[uri1])
 	assert.Equal(t, 2, handler.countMap[uri2])
 	assert.Equal(t, 1, handler.countMap[uri3])
@@ -80,12 +83,39 @@ func TestMostMatchFieldUserAgent(t *testing.T) {
 	handler.Input(&ioutil.LogInfo{HttpUserAgent: userAgent2})
 	handler.Input(&ioutil.LogInfo{HttpUserAgent: userAgent3})
 	handler.Output(limit)
+
 	assert.Equal(t, 3, handler.countMap[userAgent1])
 	assert.Equal(t, 2, handler.countMap[userAgent2])
 	assert.Equal(t, 1, handler.countMap[userAgent3])
 }
 
-func TestMostFrequentResponseStatus(t *testing.T) {
+func TestMostVisitedCities(t *testing.T) {
+	handler := NewMostVisitedCities("../test-data/GeoLite2-City-Test.mmdb", 15)
+	assert.NotNil(t, handler.geoLite2Db)
+
+	// see https://github.com/maxmind/MaxMind-DB/blob/main/source-data/GeoLite2-City-Test.json
+	handler.Input(&ioutil.LogInfo{RemoteAddr: "175.16.199.0"}) // China -> Changchun
+	handler.Input(&ioutil.LogInfo{RemoteAddr: "175.16.199.0"})
+	handler.Input(&ioutil.LogInfo{RemoteAddr: "175.16.199.0"})
+	handler.Input(&ioutil.LogInfo{RemoteAddr: "2.125.160.216"}) // United Kingdom -> Boxford
+	handler.Input(&ioutil.LogInfo{RemoteAddr: "2.125.160.216"})
+	handler.Input(&ioutil.LogInfo{RemoteAddr: "2001:218::"}) // Japan -> unknown
+	handler.Output(15)
+
+	assert.Equal(t, 3, handler.countryCountMap["中国 China"])
+	assert.Equal(t, 2, handler.countryCountMap["United Kingdom"])
+	assert.Equal(t, 1, handler.countryCountMap["日本 Japan"])
+
+	assert.Equal(t, 3, handler.countryCityCountMap["中国 China"]["长春 Changchun"])
+	assert.Equal(t, 2, handler.countryCityCountMap["United Kingdom"]["Boxford"])
+	assert.Equal(t, 1, handler.countryCityCountMap["日本 Japan"]["unknown"])
+
+	assert.Equal(t, 3, handler.countryCityIpCountMap["中国 China"]["长春 Changchun"]["175.16.199.0"])
+	assert.Equal(t, 2, handler.countryCityIpCountMap["United Kingdom"]["Boxford"]["2.125.160.216"])
+	assert.Equal(t, 1, handler.countryCityIpCountMap["日本 Japan"]["unknown"]["2001:218::"])
+}
+
+func TestMostFrequentStatusHandler(t *testing.T) {
 	handler := NewMostFrequentStatusHandler()
 	handler.Input(&ioutil.LogInfo{Status: responseStatus1, Request: uri1})
 	handler.Input(&ioutil.LogInfo{Status: responseStatus2, Request: uri1})
@@ -94,9 +124,11 @@ func TestMostFrequentResponseStatus(t *testing.T) {
 	handler.Input(&ioutil.LogInfo{Status: responseStatus2, Request: uri2})
 	handler.Input(&ioutil.LogInfo{Status: responseStatus3, Request: uri3})
 	handler.Output(limit)
+
 	assert.Equal(t, 2, handler.statusCountMap[responseStatus1])
 	assert.Equal(t, 2, handler.statusCountMap[responseStatus2])
 	assert.Equal(t, 2, handler.statusCountMap[responseStatus3])
+
 	assert.Equal(t, 1, handler.statusUriCountMap[responseStatus1][uri1])
 	assert.Equal(t, 1, handler.statusUriCountMap[responseStatus1][uri2])
 	assert.Equal(t, 1, handler.statusUriCountMap[responseStatus2][uri1])
@@ -114,6 +146,7 @@ func TestTopTimeMeanCostUris(t *testing.T) {
 	handler.Input(&ioutil.LogInfo{Request: uri2, RequestTime: responseTime2})
 	handler.Input(&ioutil.LogInfo{Request: uri3, RequestTime: responseTime1})
 	handler.Output(limit)
+
 	assert.Equal(t, []float64{responseTime1, responseTime2, responseTime3}, handler.timeCostListMap[uri1])
 	assert.Equal(t, []float64{responseTime1, responseTime2}, handler.timeCostListMap[uri2])
 	assert.Equal(t, []float64{responseTime1}, handler.timeCostListMap[uri3])
@@ -128,6 +161,7 @@ func TestTopTimePercentCostUris(t *testing.T) {
 	handler.Input(&ioutil.LogInfo{Request: uri2, RequestTime: responseTime2})
 	handler.Input(&ioutil.LogInfo{Request: uri3, RequestTime: responseTime1})
 	handler.Output(limit)
+
 	assert.Equal(t, []float64{responseTime1, responseTime2, responseTime3}, handler.timeCostListMap[uri1])
 	assert.Equal(t, []float64{responseTime1, responseTime2}, handler.timeCostListMap[uri2])
 	assert.Equal(t, []float64{responseTime1}, handler.timeCostListMap[uri3])

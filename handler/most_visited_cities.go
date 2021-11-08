@@ -5,12 +5,10 @@ import (
 	"github.com/fantasticmao/nginx-json-log-analyzer/ioutil"
 	"github.com/oschwald/geoip2-golang"
 	"net"
-	"path"
 	"sort"
 	"strings"
 )
 
-const dbFile string = "City.mmdb"
 const (
 	countryChina = "China"
 	countryJapan = "Japan"
@@ -34,10 +32,10 @@ type MostVisitedCities struct {
 	countryCityIpCountMap map[string]map[string]map[string]int
 }
 
-func NewMostVisitedCities(configDir string, limitSecond int) *MostVisitedCities {
-	db, err := geoip2.Open(path.Join(configDir, dbFile))
+func NewMostVisitedCities(dbFile string, limitSecond int) *MostVisitedCities {
+	db, err := geoip2.Open(dbFile)
 	if err != nil {
-		ioutil.Fatal("open %v error: %v\n", dbFile, err.Error())
+		ioutil.Fatal("open MaxMind-DB error: %v\n", err.Error())
 	}
 	return &MostVisitedCities{
 		limitSecond:           limitSecond,
@@ -125,11 +123,11 @@ func (handler *MostVisitedCities) Output(limit int) {
 func (handler *MostVisitedCities) queryIpLocation(ip net.IP) (string, string) {
 	record, err := handler.geoLite2Db.City(ip)
 	if record == nil {
-		ioutil.Fatal("query from %v error: %v\n", dbFile, "record is nil")
+		ioutil.Fatal("query from MaxMind-DB error: record is nil\n")
 		return "", ""
 	}
 	if err != nil {
-		ioutil.Fatal("query from %v error: %v\n", dbFile, err.Error())
+		ioutil.Fatal("query from MaxMind-DB error: %v\n", err.Error())
 		return "", ""
 	}
 

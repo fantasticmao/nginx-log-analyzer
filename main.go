@@ -92,7 +92,8 @@ func newHandler() handler.Handler {
 	case handler.AnalyzeTypeFieldUserAgent:
 		return handler.NewMostMatchFieldHandler(analyzeType)
 	case handler.AnalyzeTypeFieldUserCity:
-		return handler.NewMostVisitedCities(configDir, limitSecond)
+		const dbFile = "City.mmdb"
+		return handler.NewMostVisitedCities(path.Join(configDir, dbFile), limitSecond)
 	case handler.AnalyzeTypeResponseStatus:
 		return handler.NewMostFrequentStatusHandler()
 	case handler.AnalyzeTypeTimeMeanCostUris:
