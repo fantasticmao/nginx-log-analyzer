@@ -36,6 +36,7 @@ func NewMostVisitedCities(dbFile string, limitSecond int) *MostVisitedCities {
 	db, err := geoip2.Open(dbFile)
 	if err != nil {
 		ioutil.Fatal("open MaxMind-DB error: %v\n", err.Error())
+		return nil
 	}
 	return &MostVisitedCities{
 		limitSecond:           limitSecond,

@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"errors"
 	"fmt"
 	"github.com/fantasticmao/nginx-json-log-analyzer/ioutil"
 	"math"
@@ -15,7 +14,8 @@ type TopTimePercentCostUrisHandler struct {
 
 func NewTopTimePercentCostUrisHandler(percentile float64) *TopTimePercentCostUrisHandler {
 	if percentile <= 0 || percentile > 100 {
-		panic(errors.New("illegal argument percentile"))
+		ioutil.Fatal("illegal argument percentile: %.3f\n", percentile)
+		return nil
 	}
 	return &TopTimePercentCostUrisHandler{
 		percentile:      percentile,

@@ -90,7 +90,7 @@ func TestMostMatchFieldUserAgent(t *testing.T) {
 }
 
 func TestMostVisitedCities(t *testing.T) {
-	handler := NewMostVisitedCities("../test-data/GeoLite2-City-Test.mmdb", 15)
+	handler := NewMostVisitedCities("../test-data/GeoLite2-City-Test.mmdb", limit)
 	assert.NotNil(t, handler.geoLite2Db)
 
 	// see https://github.com/maxmind/MaxMind-DB/blob/main/source-data/GeoLite2-City-Test.json
@@ -100,7 +100,7 @@ func TestMostVisitedCities(t *testing.T) {
 	handler.Input(&ioutil.LogInfo{RemoteAddr: "2.125.160.216"}) // United Kingdom -> Boxford
 	handler.Input(&ioutil.LogInfo{RemoteAddr: "2.125.160.216"})
 	handler.Input(&ioutil.LogInfo{RemoteAddr: "2001:218::"}) // Japan -> unknown
-	handler.Output(15)
+	handler.Output(limit)
 
 	assert.Equal(t, 3, handler.countryCountMap["中国 China"])
 	assert.Equal(t, 2, handler.countryCountMap["United Kingdom"])

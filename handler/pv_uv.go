@@ -28,5 +28,6 @@ func (handler *PvAndUvHandler) Input(info *ioutil.LogInfo) {
 }
 
 func (handler *PvAndUvHandler) Output(limit int) {
-	fmt.Printf("PV: %v\nUV: %v\n", handler.pv, handler.uv)
+	fmt.Printf("PV: %v\n", handler.pv)
+	fmt.Printf("UV: %v\n", handler.uv)
 }

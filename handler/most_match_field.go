@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"errors"
 	"fmt"
 	"github.com/fantasticmao/nginx-json-log-analyzer/ioutil"
 	"sort"
@@ -29,7 +28,8 @@ func (handler *MostMatchFieldHandler) Input(info *ioutil.LogInfo) {
 	case AnalyzeTypeFieldUserAgent:
 		field = info.HttpUserAgent
 	default:
-		panic(errors.New("unknown analyze type"))
+		ioutil.Fatal("unsupported analyze type: %v\n", handler.analyzeType)
+		return
 	}
 
 	if _, ok := handler.countMap[field]; ok {

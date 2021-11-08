@@ -54,6 +54,7 @@ func main() {
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
 			ioutil.Fatal("get user home directory error: %v\n", err.Error())
+			return
 		}
 		configDir = path.Join(homeDir, ".config", Name)
 	}
@@ -126,22 +127,24 @@ nextFile:
 			err = json.Unmarshal(data[:len(data)-1], logInfo)
 			if err != nil {
 				ioutil.Fatal("json unmarshal error: %v\n", err.Error())
-				continue
+				return
 			}
 
-			// 3. time filter
-			logTime, err := time.Parse(time.RFC3339, logInfo.TimeIso8601)
-			if err != nil {
-				ioutil.Fatal("parse log time error: %v\n", err.Error())
-				continue
-			}
-			if !since.IsZero() && logTime.Before(since) {
-				// go to next line
-				continue
-			}
-			if !util.IsZero() && logTime.After(util) {
-				// go to next file
-				break nextFile
+			// 3. datetime filter
+			if !since.IsZero() || !util.IsZero() {
+				logTime, err := time.Parse(time.RFC3339, logInfo.TimeIso8601)
+				if err != nil {
+					ioutil.Fatal("parse log time error: %v\n", err.Error())
+					return
+				}
+				if !since.IsZero() && logTime.Before(since) {
+					// go to next line
+					continue
+				}
+				if !util.IsZero() && logTime.After(util) {
+					// go to next file
+					break nextFile
+				}
 			}
 
 			// 4. process data
@@ -152,6 +155,7 @@ nextFile:
 		err := file.Close()
 		if err != nil {
 			ioutil.Fatal("close file error: %v\n", err.Error())
+			return
 		}
 	}
 
