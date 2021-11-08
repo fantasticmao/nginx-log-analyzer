@@ -34,12 +34,12 @@ var (
 func init() {
 	flag.BoolVar(&showVersion, "v", false, "show current version")
 	flag.StringVar(&configDir, "d", "", "specify the configuration directory")
-	flag.IntVar(&analyzeType, "t", 0, "specify the analyze type")
+	flag.IntVar(&analyzeType, "t", 0, "specify the analyze type, see documentation for more details:\nhttps://github.com/fantasticmao/nginx-json-log-analyzer#supported-statistical-indicators")
 	flag.IntVar(&limit, "n", 15, "limit the output number lines")
 	flag.IntVar(&limitSecond, "n2", 15, "limit the secondary output number lines in '-t 4' mode")
 	flag.Float64Var(&percentile, "p", 95, "specify the percentile value in '-t 7' mode")
-	flag.StringVar(&timeAfter, "ta", "", "specify the analyze start time, in format of '2006-01-02T15:04:05Z07:00'")
-	flag.StringVar(&timeBefore, "tb", "", "specify the analyze end time, in format of '2006-01-02T15:04:05Z07:00'")
+	flag.StringVar(&timeAfter, "ta", "", "specify the analyze start time, in format of RFC3339 e.g. '2021-11-01T00:00:00+08:00'")
+	flag.StringVar(&timeBefore, "tb", "", "specify the analyze end time, in format of RFC3339 e.g. '2021-11-02T00:00:00+08:00'")
 	flag.Parse()
 	logFiles = flag.Args()
 }
@@ -108,7 +108,6 @@ func newHandler() handler.Handler {
 }
 
 func process(logFiles []string, h handler.Handler, since, util time.Time) {
-nextFile:
 	for _, logFile := range logFiles {
 		// 1. open and read file
 		file, isGzip := ioutil.OpenFile(logFile)
@@ -143,7 +142,7 @@ nextFile:
 				}
 				if !util.IsZero() && logTime.After(util) {
 					// go to next file
-					break nextFile
+					break
 				}
 			}
 
