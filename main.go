@@ -18,6 +18,7 @@ var (
 	configDir   string
 	analyzeType int
 	limit       int
+	limitSecond int
 	percentile  float64
 	timeAfter   string
 	timeBefore  string
@@ -35,7 +36,8 @@ func init() {
 	flag.StringVar(&configDir, "d", "", "specify the configuration directory")
 	flag.IntVar(&analyzeType, "t", 0, "specify the analyze type")
 	flag.IntVar(&limit, "n", 15, "limit the output number lines")
-	flag.Float64Var(&percentile, "p", 95, "specify the percentile value in '-t 8' mode")
+	flag.IntVar(&limitSecond, "n2", 15, "limit the secondary output number lines in '-t 4' mode")
+	flag.Float64Var(&percentile, "p", 95, "specify the percentile value in '-t 7' mode")
 	flag.StringVar(&timeAfter, "ta", "", "specify the analyze start time, in format of '2006-01-02T15:04:05Z07:00'")
 	flag.StringVar(&timeBefore, "tb", "", "specify the analyze end time, in format of '2006-01-02T15:04:05Z07:00'")
 	flag.Parse()
@@ -75,8 +77,32 @@ func main() {
 		}
 	}
 
-	h := handler.NewHandler(configDir, analyzeType, percentile)
+	h := newHandler()
 	process(logFiles, h, since, util)
+}
+
+func newHandler() handler.Handler {
+	switch analyzeType {
+	case handler.AnalyzeTypePvUv:
+		return handler.NewPvAndUvHandler()
+	case handler.AnalyzeTypeFieldIp:
+		return handler.NewMostMatchFieldHandler(analyzeType)
+	case handler.AnalyzeTypeFieldUri:
+		return handler.NewMostMatchFieldHandler(analyzeType)
+	case handler.AnalyzeTypeFieldUserAgent:
+		return handler.NewMostMatchFieldHandler(analyzeType)
+	case handler.AnalyzeTypeFieldUserCity:
+		return handler.NewMostVisitedCities(configDir, limitSecond)
+	case handler.AnalyzeTypeResponseStatus:
+		return handler.NewMostFrequentStatusHandler()
+	case handler.AnalyzeTypeTimeMeanCostUris:
+		return handler.NewTopTimeMeanCostUrisHandler()
+	case handler.AnalyzeTypeTimePercentCostUris:
+		return handler.NewTopTimePercentCostUrisHandler(percentile)
+	default:
+		ioutil.Fatal("unsupported analyze type: %v\n", analyzeType)
+		return nil
+	}
 }
 
 func process(logFiles []string, h handler.Handler, since, util time.Time) {

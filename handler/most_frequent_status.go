@@ -7,7 +7,9 @@ import (
 )
 
 type MostFrequentStatusHandler struct {
-	statusCountMap    map[int]int
+	// status -> count
+	statusCountMap map[int]int
+	// status -> uri -> count
 	statusUriCountMap map[int]map[string]int
 }
 
@@ -19,17 +21,17 @@ func NewMostFrequentStatusHandler() *MostFrequentStatusHandler {
 }
 
 func (handler *MostFrequentStatusHandler) Input(info *ioutil.LogInfo) {
-	if _, ok1 := handler.statusCountMap[info.Status]; ok1 {
-		handler.statusCountMap[info.Status]++
-		if _, ok2 := handler.statusUriCountMap[info.Status][info.Request]; ok2 {
-			handler.statusUriCountMap[info.Status][info.Request]++
-		} else {
-			handler.statusUriCountMap[info.Status][info.Request] = 1
-		}
-	} else {
+	if _, ok := handler.statusUriCountMap[info.Status]; !ok {
 		handler.statusCountMap[info.Status] = 1
 		handler.statusUriCountMap[info.Status] = make(map[string]int)
+	} else {
+		handler.statusCountMap[info.Status]++
+	}
+
+	if _, ok := handler.statusUriCountMap[info.Status][info.Request]; !ok {
 		handler.statusUriCountMap[info.Status][info.Request] = 1
+	} else {
+		handler.statusUriCountMap[info.Status][info.Request]++
 	}
 }
 
@@ -42,19 +44,20 @@ func (handler *MostFrequentStatusHandler) Output(limit int) {
 
 	for _, status := range statusCountKeys {
 		count := handler.statusCountMap[status]
+		uriCountMap := handler.statusUriCountMap[status]
 		fmt.Printf("%v hits: %v\n", status, count)
 
-		uriCountMap := handler.statusUriCountMap[status]
 		uriCountKeys := make([]string, 0, len(uriCountMap))
 		for k := range uriCountMap {
 			uriCountKeys = append(uriCountKeys, k)
 		}
-
 		sort.Slice(uriCountKeys, func(i, j int) bool {
 			return uriCountMap[uriCountKeys[i]] > uriCountMap[uriCountKeys[j]]
 		})
+
 		for i := 0; i < limit && i < len(uriCountKeys); i++ {
-			fmt.Printf("  |--\"%v\" hits: %v\n", uriCountKeys[i], uriCountMap[uriCountKeys[i]])
+			uri := uriCountKeys[i]
+			fmt.Printf("  |--\"%v\" hits: %v\n", uri, uriCountMap[uri])
 		}
 	}
 }
