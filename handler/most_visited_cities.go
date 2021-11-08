@@ -13,6 +13,7 @@ const (
 	countryChina = "China"
 	countryJapan = "Japan"
 	areaHongKong = "Hong Kong"
+	areaTaiwan   = "Taiwan"
 	cityUnknown  = "unknown"
 )
 const (
@@ -138,14 +139,15 @@ func (handler *MostVisitedCities) queryIpLocation(ip net.IP) (string, string) {
 		city = cityUnknown
 	}
 
-	if strings.EqualFold(countryChina, country) || strings.EqualFold(areaHongKong, country) {
+	if strings.EqualFold(countryChina, country) || strings.EqualFold(areaHongKong, country) ||
+		strings.EqualFold(areaTaiwan, country) {
 		country = fmt.Sprintf("%s %s", record.Country.Names[languageZhCn], country)
-		if city != cityUnknown {
+		if city != cityUnknown && record.City.Names[languageZhCn] != "" {
 			city = fmt.Sprintf("%s %s", record.City.Names[languageZhCn], city)
 		}
 	} else if strings.EqualFold(countryJapan, country) {
 		country = fmt.Sprintf("%s %s", record.Country.Names[languageJa], country)
-		if city != cityUnknown {
+		if city != cityUnknown && record.City.Names[languageJa] != "" {
 			city = fmt.Sprintf("%s %s", record.City.Names[languageJa], city)
 		}
 	}
