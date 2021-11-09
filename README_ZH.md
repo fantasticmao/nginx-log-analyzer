@@ -103,7 +103,7 @@ access_log /path/to/access.json.log json_log;
 
 #### 限制输出行数 -n -n2
 
-`-n`和 `-n2` 选项可以限制 Nginx-JSON-Log-Analyzer 的输出行数，`-n2` 仅对 `-t 4` 模式生效。
+`-n` 和 `-n2` 选项可以限制 Nginx-JSON-Log-Analyzer 的输出行数，`-n2` 仅对 `-t 4` 模式生效。
 
 #### 指定百分位值 -p
 
@@ -113,9 +113,43 @@ access_log /path/to/access.json.log json_log;
 
 #### 基于请求时间过滤数据
 
+![image](docs/tatb.png)
+
 #### 同时分析多个文件
 
+![image](docs/logs.png)
+
 #### 分析 .gz 压缩文件
+
+![image](docs/loggz.png)
+
+#### 统计访问最多的 IP
+
+![image](docs/t1.png)
+
+#### 统计访问最多的 URI
+
+![image](docs/t2.png)
+
+#### 统计访问最多的 User-Agent
+
+![image](docs/t3.png)
+
+#### 统计访问最多的国家和城市
+
+![image](docs/t4.png)
+
+#### 统计频率最高的响应状态码
+
+![image](docs/t5.png)
+
+#### 统计最大 URI 平均响应时间
+
+![image](docs/t6.png)
+
+#### 统计最大 URI P90 响应时间
+
+![image](docs/t7.png)
 
 ####
 
