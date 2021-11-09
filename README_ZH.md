@@ -10,20 +10,20 @@
 
 ## 这是什么
 
-Nginx-JSON-Log-Analyzer 是一个轻量的（简陋的）对 JSON 格式日志的分析工具，用于满足我自己对 Nginx 访问日志的分析需求。
+Nginx-JSON-Log-Analyzer 是一个轻量的（简陋的）JSON 格式日志的分析工具，用于满足我自己对 Nginx 访问日志的分析需求。
 
-Nginx-JSON-Log-Analyzer 基于 Go 语言来编写，运行时只需一个 2MB 左右的可执行文件，目前支持的功能特性如下：
+Nginx-JSON-Log-Analyzer 采用 Go 语言来编写，运行时只需一个 2MB 左右的可执行文件，目前支持的功能特性如下：
 
 - [x] 基于请求时间过滤数据
-- [x] 支持同时解析多个文件
-- [x] 支持解析 .gz 压缩文件
+- [x] 支持同时分析多个文件
+- [x] 支持分析 .gz 压缩文件
 - [x] 支持多种 [统计指标](#统计指标)
 
 ### 和 [GoAccess](https://goaccess.io/) 相比有什么优势
 
-在开发 Nginx-JSON-Log-Analyzer 之前，我不知道 GoAccess 的存在，不然可能就不会有这个仓库了。
+GoAccess 是一个优秀和强大的实时 web 日志分析工具，支持以命令行或者浏览器的两种交互方式。不过据我所知，GoAccess 似乎不支持读取 .gz 格式的压缩文件，也不支持按百分位统计 URI 的响应时间，Nginx-JSON-Log-Analyzer 支持这两个特性。
 
-GoAccess 是一个优秀的实时 web 日志解析工具，比 Nginx-JSON-Log-Analyzer 更好用、更强大。不过据我所知，GoAccess 似乎不支持读取 .gz 格式的压缩文件，也不支持按百分位统计 URI 的响应时间。
+如果在开发 Nginx-JSON-Log-Analyzer 之前，我知道有 GoAccess 的话，可能我也会直接使用它了。GoAccess 很强大，我爱 GoAccess。
 
 ### 和 [ELK](https://www.elastic.co/cn/what-is/elk-stack) 相比有什么优势
 
@@ -39,7 +39,7 @@ ELK 虽然功能强大，但安装和配置比较麻烦，对机器性能也有�
 
 [GeoIP2](https://www.maxmind.com/en/geoip2-city) 是商业版的 IP 地理定位的数据库，需要付费才能使用。[GeoLite2](https://dev.maxmind.com/geoip/geolite2-free-geolocation-data) 是免费版和低精度版的 GeoIP2，以 [署名-相同方式共享 4.0 国际](https://creativecommons.org/licenses/by-sa/4.0/deed.zh) 许可证发行，在 [MaxMind](https://www.maxmind.com/en/accounts/current/geoip/downloads) 官网登录即可下载。
 
-在使用 Nginx-JSON-Log-Analyzer 时，如果需要解析 IP 的地理位置（即使用 `-t 4` 模式），则需要额外下载 GeoIP2 或 GeoLite2 的城市数据库文件，保存至默认配置目录 `${HOME}/.config/nginx-json-log-analyzer/` 中的 `City.mmdb` 文件：
+在使用 Nginx-JSON-Log-Analyzer 时，如果需要解析 IP 的地理位置（即使用 `-t 4` 模式），则需要额外下载 GeoIP2 或者 GeoLite2 的城市数据库文件，保存至默认配置目录 `${HOME}/.config/nginx-json-log-analyzer/` 中的 `City.mmdb` 文件，对应的 shell 命令如下：
 
 ```shell
 ~$ mkdir ${HOME}/.config/nginx-json-log-analyzer
@@ -49,7 +49,7 @@ ELK 虽然功能强大，但安装和配置比较麻烦，对机器性能也有�
 
 ### Nginx 配置
 
-Nginx-JSON-Log-Analyzer 只能解析 JSON 格式的 Nginx 访问日志，因此需要在 Nginx 配置文件中添加如下的配置：
+Nginx-JSON-Log-Analyzer 仅支持解析 JSON 格式的 Nginx 访问日志，因此需要在 Nginx 配置文件中添加如下的 `log_format` 和 `access_log` 指令：
 
 ```text
 log_format json_log escape=json '{"time_iso8601":"$time_iso8601",'
@@ -62,8 +62,9 @@ log_format json_log escape=json '{"time_iso8601":"$time_iso8601",'
 access_log /path/to/access.json.log json_log;
 ```
 
-- `log_format` 指令只能出现在 `http` 上下文中。
-- `access_log` 指令可以出现在 `http`、`server`、`location` 等上下文中，需要指定使用如上声明的 `log_format`， 并且你可以同时使用多个 `access_log`，而不用删除原先已有的配置。例如：
+- `log_format` 指令只能出现在 `http` 上下文中；
+- `access_log` 指令可以出现在 `http`、`server`、`location` 等上下文中，并且需要指定如上声明的 `log_format`；
+- 可以同时使用多个 `access_log` 指令，而不用删除原先已有的配置。例如：
     ```text
     access_log /path/to/access.log;
     access_log /path/to/access.json.log json_log;
@@ -92,9 +93,9 @@ TODO
 
 #### 基于请求时间过滤数据
 
-#### 同时解析多个文件
+#### 同时分析多个文件
 
-#### 解析 .gz 压缩文件
+#### 分析 .gz 压缩文件
 
 ####
 
@@ -102,7 +103,7 @@ TODO
 
 Q: 未来是否会支持实时解析？
 
-A: 不会支持。如果想要实时解析，建议使用 GoAccess、ELK、Grafana + 时序数据库之类的方案。
+A: 不会支持。如果想要这个特性，建议使用 GoAccess、ELK、Grafana + 时序数据库之类的方案。
 
 ## 版权声明
 
