@@ -4,9 +4,10 @@
 [![codecov](https://codecov.io/gh/fantasticmao/nginx-json-log-analyzer/branch/main/graph/badge.svg)](https://codecov.io/gh/fantasticmao/nginx-json-log-analyzer)
 ![Go Version](https://img.shields.io/github/go-mod/go-version/fantasticmao/nginx-json-log-analyzer)
 [![Go Report Card](https://goreportcard.com/badge/github.com/fantasticmao/nginx-json-log-analyzer)](https://goreportcard.com/report/github.com/fantasticmao/nginx-json-log-analyzer)
+[![Release](https://img.shields.io/github/v/release/fantasticmao/nginx-json-log-analyzer)](https://github.com/fantasticmao/nginx-json-log-analyzer/releases)
 [![License](https://img.shields.io/github/license/fantasticmao/nginx-json-log-analyzer)](https://github.com/fantasticmao/nginx-json-log-analyzer/blob/main/LICENSE)
 
-[README](README.md) | [看我看我](README_ZH.md)
+README [English](README.md) | [中文](README_ZH.md)
 
 ## 这是什么
 
@@ -80,11 +81,11 @@ access_log /path/to/access.json.log json_log;
 
 #### 指定配置目录 -d
 
-`-d` 选项可以指定 Nginx-JSON-Log-Analyzer 运行时需要的配置目录，用于取代默认的配置目录 `${HOME}/.config/nginx-json-log-analyzer/`。
+`-d` 选项可以指定 Nginx-JSON-Log-Analyzer 运行时需要的配置目录，默认的配置目录为 `${HOME}/.config/nginx-json-log-analyzer/`。
 
 #### 指定分析类型 -t
 
-`-t` 选项可以指定本次分析的指标类型，具体的分析类型和对应的统计指标如下表：
+`-t` 选项可以指定本次分析的类型，具体的分析类型和对应的统计指标如下表：
 
 | 是否支持 | 分析类型 `-t` | 统计指标                                                           | 需要的字段或者依赖                                                                                                                                              |
 | -------- | ------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -101,13 +102,15 @@ access_log /path/to/access.json.log json_log;
 
 `-ta` 和 `-tb` 选项可以基于请求时间来过滤日志数据，ta 是 time after 的缩写，tb 是 time before 的缩写。
 
+`-ta` 和 `-tb` 选项需要在 Nginx 的 `log_format` 中配置 $time_iso8601 字段。
+
 #### 限制输出行数 -n -n2
 
 `-n` 和 `-n2` 选项可以限制 Nginx-JSON-Log-Analyzer 的输出行数，`-n2` 仅对 `-t 4` 模式生效。
 
 #### 指定百分位值 -p
 
-`-p` 选项可以指定 `-t 7` 模式中的百分位值，用于取代默认值 `-p 95`。
+`-p` 选项可以指定 `-t 7` 模式中的百分位值，默认值为 95。
 
 ### 使用示例
 
@@ -153,11 +156,11 @@ access_log /path/to/access.json.log json_log;
 
 ####
 
-## FAQ
+## 常见的问题和回答
 
-Q: 未来是否会支持实时解析？
+问：未来是否会支持实时解析？
 
-A: 不会支持。如果想要这个特性，建议使用 GoAccess、ELK、Grafana + 时序数据库之类的方案。
+答：不会支持。如果想要这个特性，建议使用 GoAccess、ELK、Grafana + 时序数据库之类的方案。
 
 ## 版权声明
 
