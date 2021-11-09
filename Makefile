@@ -9,8 +9,7 @@ GO_BUILD=CGO_ENABLED=0 go build -trimpath -ldflags \
 	-X "main.CommitHash=$(COMMIT_HASH)" \
 	-w -s'
 
-PLATFORM_LIST=darwin-amd64 darwin-arm64 linux-amd64 linux-armv5 linux-armv6 linux-armv7 linux-armv8 \
-	windows-amd64 windows-arm64
+PLATFORM_LIST=darwin-amd64 linux-amd64 linux-armv5 linux-armv6 linux-armv7 linux-armv8 windows-amd64
 
 default: build
 
@@ -24,9 +23,6 @@ build-all: $(PLATFORM_LIST)
 
 darwin-amd64:
 	GOARCH=amd64 GOOS=darwin $(GO_BUILD) -o $(BIN_DIR)/$(NAME)-$@
-
-darwin-arm64:
-	GOARCH=arm64 GOOS=darwin $(GO_BUILD) -o $(BIN_DIR)/$(NAME)-$@
 
 linux-amd64:
 	GOARCH=amd64 GOOS=linux $(GO_BUILD) -o ./$(BIN_DIR)/$(NAME)-$@
@@ -45,9 +41,6 @@ linux-armv8:
 
 windows-amd64:
 	GOARCH=amd64 GOOS=windows $(GO_BUILD) -o $(BIN_DIR)/$(NAME)-$@.exe
-
-windows-arm64:
-	GOARCH=arm64 GOOS=windows $(GO_BUILD) -o $(BIN_DIR)/$(NAME)-$@.exe
 
 test:
 	go test ./... -v
