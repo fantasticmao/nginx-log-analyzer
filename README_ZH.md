@@ -48,9 +48,9 @@ ELK 虽然功能强大，但安装和配置比较麻烦，对机器性能也有�
 ~$ cp GeoLite2-City_20211102/GeoLite2-City.mmdb ${HOME}/.config/nginx-json-log-analyzer/City.mmdb
 ```
 
-### Nginx 配置
+### 配置 Nginx
 
-Nginx-JSON-Log-Analyzer 仅支持解析 JSON 格式的 Nginx 访问日志，因此需要在 Nginx 配置文件中添加如下的 `log_format` 和 `access_log` 指令：
+Nginx-JSON-Log-Analyzer 仅支持解析 JSON 格式的 Nginx 访问日志，因此需要在 Nginx 配置中添加如下的 `log_format` 和 `access_log` 指令：
 
 ```text
 log_format json_log escape=json '{"time_iso8601":"$time_iso8601",'
@@ -64,7 +64,7 @@ access_log /path/to/access.json.log json_log;
 ```
 
 - `log_format` 指令只能出现在 `http` 上下文中；
-- `access_log` 指令可以出现在 `http`、`server`、`location` 等上下文中，并且需要指定如上声明的 `log_format`；
+- `access_log` 指令可以出现在 `http`、`server`、`location` 等上下文中，并且需要使用如上声明的 `log_format`；
 - 可以同时使用多个 `access_log` 指令，而不用删除原先已有的配置。例如：
     ```text
     access_log /path/to/access.log;
@@ -153,8 +153,6 @@ access_log /path/to/access.json.log json_log;
 #### 统计最大 URI P90 响应时间
 
 ![image](docs/t7.png)
-
-####
 
 ## 常见的问题和回答
 
