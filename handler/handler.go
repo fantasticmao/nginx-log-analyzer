@@ -3,14 +3,14 @@ package handler
 import "github.com/fantasticmao/nginx-json-log-analyzer/ioutil"
 
 const (
-	AnalyzeTypePvUv = iota
-	AnalyzeTypeFieldIp
-	AnalyzeTypeFieldUri
-	AnalyzeTypeFieldUserAgent
-	AnalyzeTypeFieldUserCity
-	AnalyzeTypeResponseStatus
-	AnalyzeTypeTimeMeanCostUris
-	AnalyzeTypeTimePercentCostUris
+	AnalysisTypePvUv = iota
+	AnalysisTypeFieldIp
+	AnalysisTypeFieldUri
+	AnalysisTypeFieldUserAgent
+	AnalysisTypeFieldUserCity
+	AnalysisTypeResponseStatus
+	AnalysisTypeTimeMeanCostUris
+	AnalysisTypeTimePercentCostUris
 )
 
 type Handler interface {

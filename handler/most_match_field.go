@@ -7,28 +7,28 @@ import (
 )
 
 type MostMatchFieldHandler struct {
-	analyzeType int
-	countMap    map[string]int
+	analysisType int
+	countMap     map[string]int
 }
 
-func NewMostMatchFieldHandler(analyzeType int) *MostMatchFieldHandler {
+func NewMostMatchFieldHandler(analysisType int) *MostMatchFieldHandler {
 	return &MostMatchFieldHandler{
-		analyzeType: analyzeType,
-		countMap:    make(map[string]int),
+		analysisType: analysisType,
+		countMap:     make(map[string]int),
 	}
 }
 
 func (handler *MostMatchFieldHandler) Input(info *ioutil.LogInfo) {
 	var field string
-	switch handler.analyzeType {
-	case AnalyzeTypeFieldIp:
+	switch handler.analysisType {
+	case AnalysisTypeFieldIp:
 		field = info.RemoteAddr
-	case AnalyzeTypeFieldUri:
+	case AnalysisTypeFieldUri:
 		field = info.Request
-	case AnalyzeTypeFieldUserAgent:
+	case AnalysisTypeFieldUserAgent:
 		field = info.HttpUserAgent
 	default:
-		ioutil.Fatal("unsupported analyze type: %v\n", handler.analyzeType)
+		ioutil.Fatal("unsupported analysis type: %v\n", handler.analysisType)
 		return
 	}
 

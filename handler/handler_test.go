@@ -45,7 +45,7 @@ func TestPvAndUv(t *testing.T) {
 }
 
 func TestMostMatchFieldIp(t *testing.T) {
-	handler := NewMostMatchFieldHandler(AnalyzeTypeFieldIp)
+	handler := NewMostMatchFieldHandler(AnalysisTypeFieldIp)
 	handler.Input(&ioutil.LogInfo{RemoteAddr: ip1})
 	handler.Input(&ioutil.LogInfo{RemoteAddr: ip1})
 	handler.Input(&ioutil.LogInfo{RemoteAddr: ip1})
@@ -60,7 +60,7 @@ func TestMostMatchFieldIp(t *testing.T) {
 }
 
 func TestMostMatchFieldUri(t *testing.T) {
-	handler := NewMostMatchFieldHandler(AnalyzeTypeFieldUri)
+	handler := NewMostMatchFieldHandler(AnalysisTypeFieldUri)
 	handler.Input(&ioutil.LogInfo{Request: uri1})
 	handler.Input(&ioutil.LogInfo{Request: uri1})
 	handler.Input(&ioutil.LogInfo{Request: uri1})
@@ -75,7 +75,7 @@ func TestMostMatchFieldUri(t *testing.T) {
 }
 
 func TestMostMatchFieldUserAgent(t *testing.T) {
-	handler := NewMostMatchFieldHandler(AnalyzeTypeFieldUserAgent)
+	handler := NewMostMatchFieldHandler(AnalysisTypeFieldUserAgent)
 	handler.Input(&ioutil.LogInfo{HttpUserAgent: userAgent1})
 	handler.Input(&ioutil.LogInfo{HttpUserAgent: userAgent1})
 	handler.Input(&ioutil.LogInfo{HttpUserAgent: userAgent1})

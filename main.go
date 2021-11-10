@@ -13,15 +13,15 @@ import (
 )
 
 var (
-	logFiles    []string
-	showVersion bool
-	configDir   string
-	analyzeType int
-	limit       int
-	limitSecond int
-	percentile  float64
-	timeAfter   string
-	timeBefore  string
+	logFiles     []string
+	showVersion  bool
+	configDir    string
+	analysisType int
+	limit        int
+	limitSecond  int
+	percentile   float64
+	timeAfter    string
+	timeBefore   string
 )
 
 var (
@@ -34,12 +34,12 @@ var (
 func init() {
 	flag.BoolVar(&showVersion, "v", false, "show current version")
 	flag.StringVar(&configDir, "d", "", "specify the configuration directory")
-	flag.IntVar(&analyzeType, "t", 0, "specify the analyze type, see documentation for more details:\nhttps://github.com/fantasticmao/nginx-json-log-analyzer#supported-statistical-indicators")
-	flag.IntVar(&limit, "n", 15, "limit the output number lines")
-	flag.IntVar(&limitSecond, "n2", 15, "limit the secondary output number lines in '-t 4' mode")
+	flag.IntVar(&analysisType, "t", 0, "specify the analysis type, see documentation for more details:\nhttps://github.com/fantasticmao/nginx-json-log-analyzer#specify-the-analysis-type--t")
+	flag.IntVar(&limit, "n", 15, "limit the output lines number")
+	flag.IntVar(&limitSecond, "n2", 15, "limit the secondary output lines number in '-t 4' mode")
 	flag.Float64Var(&percentile, "p", 95, "specify the percentile value in '-t 7' mode")
-	flag.StringVar(&timeAfter, "ta", "", "specify the analyze start time, in format of RFC3339 e.g. '2021-11-01T00:00:00+08:00'")
-	flag.StringVar(&timeBefore, "tb", "", "specify the analyze end time, in format of RFC3339 e.g. '2021-11-02T00:00:00+08:00'")
+	flag.StringVar(&timeAfter, "ta", "", "limit the analysis start time, in format of RFC3339 e.g. '2021-11-01T00:00:00+08:00'")
+	flag.StringVar(&timeBefore, "tb", "", "limit the analysis end time, in format of RFC3339 e.g. '2021-11-02T00:00:00+08:00'")
 	flag.Parse()
 	logFiles = flag.Args()
 }
@@ -83,26 +83,26 @@ func main() {
 }
 
 func newHandler() handler.Handler {
-	switch analyzeType {
-	case handler.AnalyzeTypePvUv:
+	switch analysisType {
+	case handler.AnalysisTypePvUv:
 		return handler.NewPvAndUvHandler()
-	case handler.AnalyzeTypeFieldIp:
-		return handler.NewMostMatchFieldHandler(analyzeType)
-	case handler.AnalyzeTypeFieldUri:
-		return handler.NewMostMatchFieldHandler(analyzeType)
-	case handler.AnalyzeTypeFieldUserAgent:
-		return handler.NewMostMatchFieldHandler(analyzeType)
-	case handler.AnalyzeTypeFieldUserCity:
+	case handler.AnalysisTypeFieldIp:
+		return handler.NewMostMatchFieldHandler(analysisType)
+	case handler.AnalysisTypeFieldUri:
+		return handler.NewMostMatchFieldHandler(analysisType)
+	case handler.AnalysisTypeFieldUserAgent:
+		return handler.NewMostMatchFieldHandler(analysisType)
+	case handler.AnalysisTypeFieldUserCity:
 		const dbFile = "City.mmdb"
 		return handler.NewMostVisitedCities(path.Join(configDir, dbFile), limitSecond)
-	case handler.AnalyzeTypeResponseStatus:
+	case handler.AnalysisTypeResponseStatus:
 		return handler.NewMostFrequentStatusHandler()
-	case handler.AnalyzeTypeTimeMeanCostUris:
+	case handler.AnalysisTypeTimeMeanCostUris:
 		return handler.NewTopTimeMeanCostUrisHandler()
-	case handler.AnalyzeTypeTimePercentCostUris:
+	case handler.AnalysisTypeTimePercentCostUris:
 		return handler.NewTopTimePercentCostUrisHandler(percentile)
 	default:
-		ioutil.Fatal("unsupported analyze type: %v\n", analyzeType)
+		ioutil.Fatal("unsupported analysis type: %v\n", analysisType)
 		return nil
 	}
 }
