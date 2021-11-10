@@ -13,7 +13,7 @@ README [English](README.md) | [中文](README_ZH.md)
 
 Nginx-JSON-Log-Analyzer 是一个轻量的（简陋的）JSON 格式日志的分析工具，用于满足我自己对 Nginx 访问日志的分析需求。
 
-Nginx-JSON-Log-Analyzer 采用 Go 语言来编写，运行时只需一个 2MB 左右的可执行文件，目前支持的功能特性如下：
+Nginx-JSON-Log-Analyzer 采用 Go 语言来编写，运行时只需一个 2 MB 左右的可执行文件，目前支持的功能特性如下：
 
 - [x] 基于请求时间过滤数据
 - [x] 支持同时分析多个文件
@@ -22,9 +22,10 @@ Nginx-JSON-Log-Analyzer 采用 Go 语言来编写，运行时只需一个 2MB �
 
 ### 和 [GoAccess](https://goaccess.io/) 相比有什么优势
 
-GoAccess 是一个优秀和强大的实时 web 日志分析工具，支持以命令行或者浏览器的两种交互方式。不过据我所知，GoAccess 似乎不支持读取 .gz 格式的压缩文件，也不支持按百分位统计 URI 的响应时间，Nginx-JSON-Log-Analyzer 支持这两个特性。
+GoAccess 是一个优秀和强大的实时 web 日志分析工具，支持以命令行或者浏览器的两种交互方式。不过据我所知，GoAccess 似乎不支持读取 .gz 格式的压缩文件，也不支持按百分位统计 URI
+的响应时间。Nginx-JSON-Log-Analyzer 支持这两个特性。
 
-如果在开发 Nginx-JSON-Log-Analyzer 之前，我知道有 GoAccess 的话，可能我也会直接使用它了。GoAccess 很强大，我爱 GoAccess。
+如果在开发 Nginx-JSON-Log-Analyzer 之前，我知道有 GoAccess 的话，可能我会直接使用它了。GoAccess 很强大，我爱 GoAccess。
 
 ### 和 [ELK](https://www.elastic.co/cn/what-is/elk-stack) 相比有什么优势
 
@@ -34,18 +35,23 @@ ELK 虽然功能强大，但安装和配置比较麻烦，对机器性能也有�
 
 ### 下载安装
 
-在 Nginx-JSON-Log-Analyzer 的 GitHub [Release](https://github.com/fantasticmao/nginx-json-log-analyzer/releases) 页面中，下载对应平台的二进制可执行文件即可。
+在 Nginx-JSON-Log-Analyzer 的 GitHub [Release](https://github.com/fantasticmao/nginx-json-log-analyzer/releases)
+页面中，下载对应平台的二进制可执行文件即可。
 
 #### GeoIP2 和 GeoLite2
 
-[GeoIP2](https://www.maxmind.com/en/geoip2-city) 是商业版的 IP 地理定位的数据库，需要付费才能使用。[GeoLite2](https://dev.maxmind.com/geoip/geolite2-free-geolocation-data) 是免费版和低精度版的 GeoIP2，以 [署名-相同方式共享 4.0 国际](https://creativecommons.org/licenses/by-sa/4.0/deed.zh) 许可证发行，在 [MaxMind](https://www.maxmind.com/en/accounts/current/geoip/downloads) 官网登录即可下载。
+[GeoIP2](https://www.maxmind.com/en/geoip2-city) 是商业版的 IP
+地理定位的数据库，需要付费才能使用。[GeoLite2](https://dev.maxmind.com/geoip/geolite2-free-geolocation-data) 是免费版和低精度版的
+GeoIP2，以 [署名-相同方式共享 4.0 国际](https://creativecommons.org/licenses/by-sa/4.0/deed.zh)
+许可证发行，在 [MaxMind](https://www.maxmind.com/en/accounts/current/geoip/downloads) 官网登录即可下载。
 
-在使用 Nginx-JSON-Log-Analyzer 时，如果需要解析 IP 的地理位置（即使用 `-t 4` 模式），则需要额外下载 GeoIP2 或者 GeoLite2 的城市数据库文件，保存至默认配置目录 `${HOME}/.config/nginx-json-log-analyzer/` 中的 `City.mmdb` 文件，对应的 shell 命令如下：
+在使用 Nginx-JSON-Log-Analyzer 时，如果需要解析 IP 的地理位置（即使用 `-t 4` 模式），则需要额外下载 GeoIP2 或者 GeoLite2
+的城市数据库文件，保存至默认配置目录 `${HOME}/.config/nginx-json-log-analyzer/` 中的 `City.mmdb` 文件。对应的 shell 命令如下：
 
 ```shell
 ~$ mkdir -p ${HOME}/.config/nginx-json-log-analyzer
-~$ tar -xzf GeoLite2-City_20211102.tar.gz
-~$ cp GeoLite2-City_20211102/GeoLite2-City.mmdb ${HOME}/.config/nginx-json-log-analyzer/City.mmdb
+~$ tar -xzf GeoLite2-City_20211109.tar.gz
+~$ cp GeoLite2-City_20211109/GeoLite2-City.mmdb ${HOME}/.config/nginx-json-log-analyzer/City.mmdb
 ```
 
 ### 配置 Nginx
@@ -159,6 +165,10 @@ access_log /path/to/access.json.log json_log;
 问：未来是否会支持实时解析？
 
 答：不会支持。如果想要这个特性，建议使用 GoAccess、ELK、Grafana + 时序数据库之类的方案。
+
+问：可以解析在 [配置 Nginx](#配置-Nginx) 之前的存量日志吗？
+
+答：目前不可以。Nginx-JSON-Log-Analyzer 仅支持解析 JSON 格式的日志，未来可能会支持解析 combined 格式的日志。
 
 ## 版权声明
 
