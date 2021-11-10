@@ -22,8 +22,7 @@ Nginx-JSON-Log-Analyzer 采用 Go 语言来编写，运行时只需一个 2 MB �
 
 ### 和 [GoAccess](https://goaccess.io/) 相比有什么优势
 
-GoAccess 是一个优秀和强大的实时 web 日志分析工具，支持以命令行或者浏览器的两种交互方式。不过据我所知，GoAccess 似乎不支持读取 .gz 格式的压缩文件，也不支持按百分位统计 URI
-的响应时间。Nginx-JSON-Log-Analyzer 支持这两个特性。
+GoAccess 是一个优秀和强大的实时 web 日志分析工具，支持以命令行或者浏览器的两种交互方式。不过据我所知，GoAccess 似乎不支持按百分位统计 URI 响应时间，Nginx-JSON-Log-Analyzer 支持这个特性。
 
 如果在开发 Nginx-JSON-Log-Analyzer 之前，我知道有 GoAccess 的话，可能我会直接使用它了。GoAccess 很强大，我爱 GoAccess。
 
@@ -106,7 +105,7 @@ access_log /path/to/access.json.log json_log;
 
 #### 限制请求时间 -ta -tb
 
-`-ta` 和 `-tb` 选项可以基于请求时间来过滤日志数据，ta 是 time after 的缩写，tb 是 time before 的缩写。
+`-ta` 和 `-tb` 选项可以基于请求时间来过滤日志数据，`ta` 是 time after 的缩写，`tb` 是 time before 的缩写。
 
 `-ta` 和 `-tb` 选项需要在 Nginx 的 `log_format` 中配置 $time_iso8601 字段。
 

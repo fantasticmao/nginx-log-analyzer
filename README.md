@@ -25,9 +25,8 @@ supported features are as follows:
 ### Advantages compared to [GoAccess](https://goaccess.io/)
 
 GoAccess is an excellent and powerful real-time web log analyzer, interactive viewer that runs in a terminal in \*nix
-systems or through your browser. But as far as I know, GoAccess seems does not support reading from .gz compressed
-files, and does not support counting URI response time by percentile. Nginx-JSON-Log-Analyzer supports these two
-features.
+systems or through your browser. But as far as I know, GoAccess seems does not support counting URI response time by
+percentile, Nginx-JSON-Log-Analyzer supports this feature.
 
 If I knew about GoAccess before developing Nginx-JSON-Log-Analyzer, I might choose to use it directly. GoAccess is so
 powerful, I love GoAccess.
