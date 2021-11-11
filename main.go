@@ -131,11 +131,7 @@ func process(logFiles []string, h handler.Handler, since, util time.Time) {
 
 			// 3. datetime filter
 			if !since.IsZero() || !util.IsZero() {
-				logTime, err := time.Parse(time.RFC3339, logInfo.TimeIso8601)
-				if err != nil {
-					ioutil.Fatal("parse log time error: %v\n", err.Error())
-					return
-				}
+				logTime := ioutil.TimeParse(logInfo.TimeLocal)
 				if !since.IsZero() && logTime.Before(since) {
 					// go to next line
 					continue

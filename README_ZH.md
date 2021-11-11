@@ -58,7 +58,7 @@ GeoIP2，以 [署名-相同方式共享 4.0 国际](https://creativecommons.org/
 Nginx-JSON-Log-Analyzer 仅支持解析 JSON 格式的 Nginx 访问日志，因此需要在 Nginx 配置中添加如下的 `log_format` 和 `access_log` 指令：
 
 ```text
-log_format json_log escape=json '{"time_iso8601":"$time_iso8601",'
+log_format json_log escape=json '{"$time_local":"$time_local",'
                                 '"remote_addr":"$remote_addr",'
                                 '"request_time":$request_time,'
                                 '"request":"$request",'
@@ -107,7 +107,7 @@ access_log /path/to/access.json.log json_log;
 
 `-ta` 和 `-tb` 选项可以基于请求时间来过滤日志数据，`ta` 是 time after 的缩写，`tb` 是 time before 的缩写。
 
-`-ta` 和 `-tb` 选项需要在 Nginx 的 `log_format` 中配置 $time_iso8601 字段。
+`-ta` 和 `-tb` 选项需要在 Nginx 的 `log_format` 中配置 $time_local 字段。
 
 #### 限制输出行数 -n -n2
 

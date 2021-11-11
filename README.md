@@ -69,7 +69,7 @@ Nginx-JSON-Log-Analyzer can only parse Nginx access logs in JSON format, so you 
 and `access_log` directives in the Nginx configuration:
 
 ```text
-log_format json_log escape=json '{"time_iso8601":"$time_iso8601",'
+log_format json_log escape=json '{"$time_local":"$time_local",'
                                 '"remote_addr":"$remote_addr",'
                                 '"request_time":$request_time,'
                                 '"request":"$request",'
@@ -122,7 +122,7 @@ follows:
 `-ta` and `-tb` options are used to filter logs based on the request time, `ta` is the abbreviation of time after, `tb`
 is the abbreviation of time before.
 
-`-ta` and `-tb` options required the $time_iso8601 field in `log_format` directive of Nginx configuration.
+`-ta` and `-tb` options required the $time_local field in `log_format` directive of Nginx configuration.
 
 #### limit the output lines number -n -n2
 
