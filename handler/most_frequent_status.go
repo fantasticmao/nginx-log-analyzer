@@ -2,7 +2,7 @@ package handler
 
 import (
 	"fmt"
-	"github.com/fantasticmao/nginx-json-log-analyzer/ioutil"
+	"github.com/fantasticmao/nginx-log-analyzer/parser"
 	"sort"
 )
 
@@ -20,7 +20,7 @@ func NewMostFrequentStatusHandler() *MostFrequentStatusHandler {
 	}
 }
 
-func (handler *MostFrequentStatusHandler) Input(info *ioutil.LogInfo) {
+func (handler *MostFrequentStatusHandler) Input(info *parser.LogInfo) {
 	if _, ok := handler.statusUriCountMap[info.Status]; !ok {
 		handler.statusCountMap[info.Status] = 1
 		handler.statusUriCountMap[info.Status] = make(map[string]int)

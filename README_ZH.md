@@ -1,40 +1,43 @@
-# Nginx-JSON-Log-Analyzer
+# Nginx-Log-Analyzer
 
-[![Actions Status](https://github.com/fantasticmao/nginx-json-log-analyzer/workflows/ci/badge.svg)](https://github.com/fantasticmao/nginx-json-log-analyzer/actions)
-[![codecov](https://codecov.io/gh/fantasticmao/nginx-json-log-analyzer/branch/main/graph/badge.svg)](https://codecov.io/gh/fantasticmao/nginx-json-log-analyzer)
-![Go Version](https://img.shields.io/github/go-mod/go-version/fantasticmao/nginx-json-log-analyzer)
-[![Go Report Card](https://goreportcard.com/badge/github.com/fantasticmao/nginx-json-log-analyzer)](https://goreportcard.com/report/github.com/fantasticmao/nginx-json-log-analyzer)
-[![Release](https://img.shields.io/github/v/release/fantasticmao/nginx-json-log-analyzer)](https://github.com/fantasticmao/nginx-json-log-analyzer/releases)
-[![License](https://img.shields.io/github/license/fantasticmao/nginx-json-log-analyzer)](https://github.com/fantasticmao/nginx-json-log-analyzer/blob/main/LICENSE)
+[![Actions Status](https://github.com/fantasticmao/nginx-log-analyzer/workflows/ci/badge.svg)](https://github.com/fantasticmao/nginx-log-analyzer/actions)
+[![codecov](https://codecov.io/gh/fantasticmao/nginx-log-analyzer/branch/main/graph/badge.svg)](https://codecov.io/gh/fantasticmao/nginx-log-analyzer)
+![Go Version](https://img.shields.io/github/go-mod/go-version/fantasticmao/nginx-log-analyzer)
+[![Go Report Card](https://goreportcard.com/badge/github.com/fantasticmao/nginx-log-analyzer)](https://goreportcard.com/report/github.com/fantasticmao/nginx-log-analyzer)
+[![Release](https://img.shields.io/github/v/release/fantasticmao/nginx-log-analyzer)](https://github.com/fantasticmao/nginx-log-analyzer/releases)
+[![License](https://img.shields.io/github/license/fantasticmao/nginx-log-analyzer)](https://github.com/fantasticmao/nginx-log-analyzer/blob/main/LICENSE)
 
 README [English](README.md) | [中文](README_ZH.md)
 
 ## 这是什么
 
-Nginx-JSON-Log-Analyzer 是一个轻量的（简陋的）JSON 格式日志的分析工具，用于满足我自己对 Nginx 访问日志的分析需求。
+Nginx-Log-Analyzer 是一个轻量的（简陋的）的日志分析工具，用于满足我自己对 Nginx 访问日志的分析需求。
 
-Nginx-JSON-Log-Analyzer 采用 Go 语言来编写，运行时只需一个 2 MB 左右的可执行文件，目前支持的功能特性如下：
+Nginx-Log-Analyzer 采用 Go 语言来编写，运行时只需一个 2 MB 左右的可执行文件，目前支持的功能特性如下：
 
-- [x] 基于请求时间过滤数据
+- [x] 基于请求时间筛选数据
+- [x] 支持多种日志格式配置
+    - combined（Nginx 默认配置）
+    - JSON
 - [x] 支持同时分析多个文件
 - [x] 支持分析 .gz 压缩文件
 - [x] 支持多种 [统计指标](#指定分析类型--t)
 
 ### 和 [GoAccess](https://goaccess.io/) 相比有什么优势
 
-GoAccess 是一个优秀和强大的实时 web 日志分析工具，支持以命令行或者浏览器的两种交互方式。不过据我所知，GoAccess 似乎不支持按百分位统计 URI 响应时间，Nginx-JSON-Log-Analyzer 支持这个特性。
+GoAccess 是一个优秀和强大的实时 web 日志分析工具，支持以命令行或者浏览器的两种交互方式。不过据我所知，GoAccess 似乎不支持按百分位统计 URI 响应时间，Nginx-Log-Analyzer 支持这个特性。
 
-如果在开发 Nginx-JSON-Log-Analyzer 之前，我知道有 GoAccess 的话，可能我会直接使用它了。GoAccess 很强大，我爱 GoAccess。
+如果在开发 Nginx-Log-Analyzer 之前，我知道有 GoAccess 的话，可能我会直接使用它了。GoAccess 很强大，我爱 GoAccess。
 
 ### 和 [ELK](https://www.elastic.co/cn/what-is/elk-stack) 相比有什么优势
 
-ELK 虽然功能强大，但安装和配置比较麻烦，对机器性能也有一定要求。Nginx-JSON-Log-Analyzer 更加轻量，使用起来更加简单，适用于一些简单的日志分析场景。
+ELK 虽然功能强大，但安装和配置比较麻烦，对机器性能也有一定要求。Nginx-Log-Analyzer 更加轻量，使用起来更加简单，适用于一些简单的日志分析场景。
 
 ## 快速开始
 
 ### 下载安装
 
-在 Nginx-JSON-Log-Analyzer 的 GitHub [Release](https://github.com/fantasticmao/nginx-json-log-analyzer/releases)
+在 Nginx-Log-Analyzer 的 GitHub [Release](https://github.com/fantasticmao/nginx-log-analyzer/releases)
 页面中，下载对应平台的二进制可执行文件即可。
 
 #### GeoIP2 和 GeoLite2
@@ -44,27 +47,39 @@ ELK 虽然功能强大，但安装和配置比较麻烦，对机器性能也有�
 GeoIP2，以 [署名-相同方式共享 4.0 国际](https://creativecommons.org/licenses/by-sa/4.0/deed.zh)
 许可证发行，在 [MaxMind](https://www.maxmind.com/en/accounts/current/geoip/downloads) 官网登录即可下载。
 
-在使用 Nginx-JSON-Log-Analyzer 时，如果需要解析 IP 的地理位置（即使用 `-t 4` 模式），则需要额外下载 GeoIP2 或者 GeoLite2
-的城市数据库文件，保存至默认配置目录 `${HOME}/.config/nginx-json-log-analyzer/` 中的 `City.mmdb` 文件。对应的 shell 命令如下：
+在使用 Nginx-Log-Analyzer 时，如果需要解析 IP 的地理位置（即使用 `-t 4` 模式），则需要额外下载 GeoIP2 或者 GeoLite2
+的城市数据库文件，保存至默认配置目录 `${HOME}/.config/nginx-log-analyzer/` 中的 `City.mmdb` 文件。对应的 shell 命令如下：
 
 ```shell
-~$ mkdir -p ${HOME}/.config/nginx-json-log-analyzer
+~$ mkdir -p ${HOME}/.config/nginx-log-analyzer
 ~$ tar -xzf GeoLite2-City_20211109.tar.gz
-~$ cp GeoLite2-City_20211109/GeoLite2-City.mmdb ${HOME}/.config/nginx-json-log-analyzer/City.mmdb
+~$ cp GeoLite2-City_20211109/GeoLite2-City.mmdb ${HOME}/.config/nginx-log-analyzer/City.mmdb
 ```
 
-### 配置 Nginx
+#### 配置 Nginx
 
-Nginx-JSON-Log-Analyzer 仅支持解析 JSON 格式的 Nginx 访问日志，因此需要在 Nginx 配置中添加如下的 `log_format` 和 `access_log` 指令：
+Nginx-Log-Analyzer 默认解析 combined 格式的 Nginx 访问日志，这意味着日志中将包含以下字段：
+
+- $remote_addr
+- $remote_user
+- $time_local
+- $request
+- $status
+- $body_bytes_sent
+- $http_referer
+- $http_user_agent
+
+在使用 Nginx-Log-Analyzer 时，如果需要更多类型的 [统计指标](#指定分析类型--t)，则需要使用 `-lf json` 选项指定 JSON 格式的日志解析模式， 并且需要在 Nginx
+配置中添加如下的 `log_format` 和 `access_log` 指令：
 
 ```text
-log_format json_log escape=json '{"time_iso8601":"$time_iso8601",'
-                                '"remote_addr":"$remote_addr",'
-                                '"request_time":$request_time,'
+log_format json_log escape=json '{"remote_addr":"$remote_addr",'
+                                '"time_local":"$time_local",'
                                 '"request":"$request",'
                                 '"status":$status,'
                                 '"body_bytes_sent":$body_bytes_sent,'
-                                '"http_user_agent":"$http_user_agent"}';
+                                '"http_user_agent":"$http_user_agent",'
+                                '"request_time":$request_time}';
 access_log /path/to/access.json.log json_log;
 ```
 
@@ -82,11 +97,15 @@ access_log /path/to/access.json.log json_log;
 
 #### 显示版本 -v
 
-`-v` 选项依次显示 Nginx-JSON-Log-Analyzer 的构建版本、构建时间、构建时的 Git Commit。
+`-v` 选项依次显示 Nginx-Log-Analyzer 的构建版本、构建时间、构建时的 Git Commit。
 
 #### 指定配置目录 -d
 
-`-d` 选项可以指定 Nginx-JSON-Log-Analyzer 运行时需要的配置目录，默认的配置目录为 `${HOME}/.config/nginx-json-log-analyzer/`。
+`-d` 选项可以指定 Nginx-Log-Analyzer 运行时需要的配置目录，默认的配置目录为 `${HOME}/.config/nginx-log-analyzer/`。
+
+#### 指定日志格式 -lf
+
+`-lf` 选项可以指定 Nginx-Log-Analyzer 解析的日志格式，可用的值为 combined 和 json，默认值为 combined。
 
 #### 指定分析类型 -t
 
@@ -107,11 +126,11 @@ access_log /path/to/access.json.log json_log;
 
 `-ta` 和 `-tb` 选项可以基于请求时间来过滤日志数据，`ta` 是 time after 的缩写，`tb` 是 time before 的缩写。
 
-`-ta` 和 `-tb` 选项需要在 Nginx 的 `log_format` 中配置 $time_iso8601 字段。
+`-ta` 和 `-tb` 选项需要在 Nginx 的 `log_format` 中配置 $time_local 字段。
 
 #### 限制输出行数 -n -n2
 
-`-n` 和 `-n2` 选项可以限制 Nginx-JSON-Log-Analyzer 的输出行数，`-n2` 仅对 `-t 4` 模式生效。
+`-n` 和 `-n2` 选项可以限制 Nginx-Log-Analyzer 的输出行数，`-n2` 仅对 `-t 4` 模式生效。
 
 #### 指定百分位值 -p
 
@@ -165,14 +184,10 @@ access_log /path/to/access.json.log json_log;
 
 答：不会支持。如果想要这个特性，建议使用 GoAccess、ELK、Grafana + 时序数据库之类的方案。
 
-问：可以解析在 [配置 Nginx](#配置-Nginx) 之前的存量日志吗？
-
-答：目前不可以。Nginx-JSON-Log-Analyzer 仅支持解析 JSON 格式的日志，未来可能会支持解析 combined 格式的日志。
-
 ## 版权声明
 
 GeoLite2 Database [版权声明](https://dev.maxmind.com/geoip/geolite2-free-geolocation-data#license)
 
-Nginx-JSON-Log-Analyzer [版权声明](https://github.com/fantasticmao/nginx-json-log-analyzer/blob/main/LICENSE)
+Nginx-Log-Analyzer [版权声明](https://github.com/fantasticmao/nginx-log-analyzer/blob/main/LICENSE)
 
 Copyright (c) 2021 fantasticmao

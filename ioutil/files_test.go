@@ -10,7 +10,11 @@ func TestOpenFile(t *testing.T) {
 	assert.NotNil(t, file)
 	assert.False(t, isGzip)
 
-	file, isGzip = OpenFile("../test-data/access.log.1.gz")
+	file, isGzip = OpenFile("../test-data/access.json.log")
+	assert.NotNil(t, file)
+	assert.False(t, isGzip)
+
+	file, isGzip = OpenFile("../test-data/access.json.log.1.gz")
 	assert.NotNil(t, file)
 	assert.True(t, isGzip)
 }
@@ -20,7 +24,11 @@ func TestReadFile(t *testing.T) {
 	reader := ReadFile(file, isGzip)
 	assert.NotNil(t, reader)
 
-	file, isGzip = OpenFile("../test-data/access.log.1.gz")
+	file, isGzip = OpenFile("../test-data/access.json.log")
+	reader = ReadFile(file, isGzip)
+	assert.NotNil(t, reader)
+
+	file, isGzip = OpenFile("../test-data/access.json.log.1.gz")
 	reader = ReadFile(file, isGzip)
 	assert.NotNil(t, reader)
 }

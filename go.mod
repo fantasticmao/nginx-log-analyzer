@@ -1,4 +1,4 @@
-module github.com/fantasticmao/nginx-json-log-analyzer
+module github.com/fantasticmao/nginx-log-analyzer
 
 go 1.17
 

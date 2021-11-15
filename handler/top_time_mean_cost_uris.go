@@ -2,7 +2,7 @@ package handler
 
 import (
 	"fmt"
-	"github.com/fantasticmao/nginx-json-log-analyzer/ioutil"
+	"github.com/fantasticmao/nginx-log-analyzer/parser"
 	"sort"
 )
 
@@ -16,7 +16,7 @@ func NewTopTimeMeanCostUrisHandler() *TopTimeMeanCostUrisHandler {
 	}
 }
 
-func (handler *TopTimeMeanCostUrisHandler) Input(info *ioutil.LogInfo) {
+func (handler *TopTimeMeanCostUrisHandler) Input(info *parser.LogInfo) {
 	if _, ok := handler.timeCostListMap[info.Request]; ok {
 		handler.timeCostListMap[info.Request] = append(handler.timeCostListMap[info.Request], info.RequestTime)
 	} else {

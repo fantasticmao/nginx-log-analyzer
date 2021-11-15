@@ -1,6 +1,8 @@
 package handler
 
-import "github.com/fantasticmao/nginx-json-log-analyzer/ioutil"
+import (
+	"github.com/fantasticmao/nginx-log-analyzer/parser"
+)
 
 const (
 	AnalysisTypePvUv = iota
@@ -14,7 +16,7 @@ const (
 )
 
 type Handler interface {
-	Input(info *ioutil.LogInfo)
+	Input(info *parser.LogInfo)
 
 	Output(limit int)
 }

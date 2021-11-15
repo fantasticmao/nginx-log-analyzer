@@ -1,23 +1,25 @@
-# Nginx-JSON-Log-Analyzer
+# Nginx-Log-Analyzer
 
-[![Actions Status](https://github.com/fantasticmao/nginx-json-log-analyzer/workflows/ci/badge.svg)](https://github.com/fantasticmao/nginx-json-log-analyzer/actions)
-[![codecov](https://codecov.io/gh/fantasticmao/nginx-json-log-analyzer/branch/main/graph/badge.svg)](https://codecov.io/gh/fantasticmao/nginx-json-log-analyzer)
-![Go Version](https://img.shields.io/github/go-mod/go-version/fantasticmao/nginx-json-log-analyzer)
-[![Go Report Card](https://goreportcard.com/badge/github.com/fantasticmao/nginx-json-log-analyzer)](https://goreportcard.com/report/github.com/fantasticmao/nginx-json-log-analyzer)
-[![Release](https://img.shields.io/github/v/release/fantasticmao/nginx-json-log-analyzer)](https://github.com/fantasticmao/nginx-json-log-analyzer/releases)
-[![License](https://img.shields.io/github/license/fantasticmao/nginx-json-log-analyzer)](https://github.com/fantasticmao/nginx-json-log-analyzer/blob/main/LICENSE)
+[![Actions Status](https://github.com/fantasticmao/nginx-log-analyzer/workflows/ci/badge.svg)](https://github.com/fantasticmao/nginx-log-analyzer/actions)
+[![codecov](https://codecov.io/gh/fantasticmao/nginx-log-analyzer/branch/main/graph/badge.svg)](https://codecov.io/gh/fantasticmao/nginx-log-analyzer)
+![Go Version](https://img.shields.io/github/go-mod/go-version/fantasticmao/nginx-log-analyzer)
+[![Go Report Card](https://goreportcard.com/badge/github.com/fantasticmao/nginx-log-analyzer)](https://goreportcard.com/report/github.com/fantasticmao/nginx-log-analyzer)
+[![Release](https://img.shields.io/github/v/release/fantasticmao/nginx-log-analyzer)](https://github.com/fantasticmao/nginx-log-analyzer/releases)
+[![License](https://img.shields.io/github/license/fantasticmao/nginx-log-analyzer)](https://github.com/fantasticmao/nginx-log-analyzer/blob/main/LICENSE)
 
 README [English](README.md) | [中文](README_ZH.md)
 
 ## What is it
 
-Nginx-JSON-Log-Analyzer is a lightweight (simplistic) JSON format log analyzer, used to analyze Nginx access logs for
-myself.
+Nginx-Log-Analyzer is a lightweight (simplistic) log analyzer, used to analyze Nginx access logs for myself.
 
-Nginx-JSON-Log-Analyzer is written in Go programming language, needs only a 2 MB executable file to run, currently
-supported features are as follows:
+Nginx-Log-Analyzer is written in Go programming language, needs only a 2 MB executable file to run, currently supported
+features are as follows:
 
 - [x] Filter logs based on the request time
+- [x] Support multiple log format configurations
+    - combined (Nginx default configuration)
+    - JSON
 - [x] Analyze multiple files at the same time
 - [x] Analyze .gz compressed files
 - [x] Support a variety of [statistical indicators](#specify-the-analysis-type--t)
@@ -26,23 +28,22 @@ supported features are as follows:
 
 GoAccess is an excellent and powerful real-time web log analyzer, interactive viewer that runs in a terminal in \*nix
 systems or through your browser. But as far as I know, GoAccess seems does not support counting URI response time by
-percentile, Nginx-JSON-Log-Analyzer supports this feature.
+percentile, Nginx-Log-Analyzer supports this feature.
 
-If I knew about GoAccess before developing Nginx-JSON-Log-Analyzer, I might choose to use it directly. GoAccess is so
+If I knew about GoAccess before developing Nginx-Log-Analyzer, I might choose to use it directly. GoAccess is so
 powerful, I love GoAccess.
 
 ### Advantages compared to [ELK](https://www.elastic.co/cn/what-is/elk-stack)
 
 Although ELK is powerful, it is troublesome to install and configure, and it also has certain requirements for machine
-performance. Nginx-JSON-Log-Analyzer is more lightweight and easier to use, suitable for some simple log analysis
-scenarios.
+performance. Nginx-Log-Analyzer is more lightweight and easier to use, suitable for some simple log analysis scenarios.
 
 ## Quick start
 
 ### Installation
 
 Just download the binary executable file for the corresponding platform from the
-GitHub [Release](https://github.com/fantasticmao/nginx-json-log-analyzer/releases) page of Nginx-JSON-Log-Analyzer.
+GitHub [Release](https://github.com/fantasticmao/nginx-log-analyzer/releases) page of Nginx-Log-Analyzer.
 
 #### GeoIP2 and GeoLite2
 
@@ -52,30 +53,42 @@ GeoIP2, distribute by [Attribution-ShareAlike 4.0 International](https://creativ
 license, download by logging in to the [MaxMind](https://www.maxmind.com/en/accounts/current/geoip/downloads) official
 website.
 
-When using Nginx-JSON-Log-Analyzer, if you need to resolve the geographic location of the IP (that is, use the `-t 4`
+When using Nginx-Log-Analyzer, if you need to resolve the geographic location of the IP (that is, use the `-t 4`
 mode), then you will need to download the GeoIP2 or GeoLite2 City database file, save it to the `City.mmdb` file in the
-default configuration directory `${HOME}/.config/nginx-json-log-analyzer/`. The corresponding shell commands are as
-follows:
+default configuration directory `${HOME}/.config/nginx-log-analyzer/`. The corresponding shell commands are as follows:
 
 ```shell
-~$ mkdir -p ${HOME}/.config/nginx-json-log-analyzer
+~$ mkdir -p ${HOME}/.config/nginx-log-analyzer
 ~$ tar -xzf GeoLite2-City_20211109.tar.gz
-~$ cp GeoLite2-City_20211109/GeoLite2-City.mmdb ${HOME}/.config/nginx-json-log-analyzer/City.mmdb
+~$ cp GeoLite2-City_20211109/GeoLite2-City.mmdb ${HOME}/.config/nginx-log-analyzer/City.mmdb
 ```
 
-### Configure Nginx
+#### Configure Nginx
 
-Nginx-JSON-Log-Analyzer can only parse Nginx access logs in JSON format, so you need to add the following `log_format`
-and `access_log` directives in the Nginx configuration:
+Nginx-Log-Analyzer parses Nginx access logs in combined format by default, which means that the logs will contain the
+following fields:
+
+- $remote_addr
+- $remote_user
+- $time_local
+- $request
+- $status
+- $body_bytes_sent
+- $http_referer
+- $http_user_agent
+
+When using Nginx-Log-Analyzer, if you need more types of [statistical indicators](#specify-the-analysis-type--t), then
+you will need to use the `-lf json` option to specify the log parsing mode to the JSON format, and need to add the
+following `log_format` and `access_log` directives in the Nginx configuration:
 
 ```text
-log_format json_log escape=json '{"time_iso8601":"$time_iso8601",'
-                                '"remote_addr":"$remote_addr",'
-                                '"request_time":$request_time,'
+log_format json_log escape=json '{"remote_addr":"$remote_addr",'
+                                '"time_local":"$time_local",'
                                 '"request":"$request",'
                                 '"status":$status,'
                                 '"body_bytes_sent":$body_bytes_sent,'
-                                '"http_user_agent":"$http_user_agent"}';
+                                '"http_user_agent":"$http_user_agent",'
+                                '"request_time":$request_time}';
 access_log /path/to/access.json.log json_log;
 ```
 
@@ -94,12 +107,17 @@ Related document: http://nginx.org/en/docs/http/ngx_http_log_module.html
 
 #### show version -v
 
-The `-v` options show Nginx-JSON-Log-Analyzer's build version, build time, and Git Commit at build time.
+The `-v` options show Nginx-Log-Analyzer's build version, build time, and Git Commit at build time.
 
 #### specify the configuration directory -d
 
-The `-d` option specify the configuration directory that Nginx-JSON-Log-Analyzer required at runtime, the default value
-is `${HOME}/.config/nginx-json-log-analyzer/`.
+The `-d` option specify the configuration directory that Nginx-Log-Analyzer required at runtime, the default value
+is `${HOME}/.config/nginx-log-analyzer/`.
+
+#### specify the log format -lf
+
+The `-lf` option specify the log format parsed by Nginx-Log-Analyzer, available values are combined and json, the
+default value is combined.
 
 #### specify the analysis type -t
 
@@ -122,11 +140,11 @@ follows:
 `-ta` and `-tb` options are used to filter logs based on the request time, `ta` is the abbreviation of time after, `tb`
 is the abbreviation of time before.
 
-`-ta` and `-tb` options required the $time_iso8601 field in `log_format` directive of Nginx configuration.
+`-ta` and `-tb` options required the $time_local field in `log_format` directive of Nginx configuration.
 
 #### limit the output lines number -n -n2
 
-`-n` and `-n2` options are used to limit the number of output lines of Nginx-JSON-Log-Analyzer, `-n2` option only works
+`-n` and `-n2` options are used to limit the number of output lines of Nginx-Log-Analyzer, `-n2` option only works
 in `-t 4` mode.
 
 #### specify the percentile value -p
@@ -181,15 +199,10 @@ Q: Will it support real-time analysis in the future?
 
 A: No. If you want this feature, it is recommended to use solutions such as GoAccess, ELK, Grafana + Time Series DBMS.
 
-Q: Is it possible to parse the existing logs before [configure Nginx](#Configure-Nginx)?
-
-A: Not currently. Nginx-JSON-Log-Analyzer can only parse logs in JSON format, may support parsing combined format logs
-in the future.
-
 ## License
 
 GeoLite2 Database [License](https://dev.maxmind.com/geoip/geolite2-free-geolocation-data#license)
 
-Nginx-JSON-Log-Analyzer [License](https://github.com/fantasticmao/nginx-json-log-analyzer/blob/main/LICENSE)
+Nginx-Log-Analyzer [License](https://github.com/fantasticmao/nginx-log-analyzer/blob/main/LICENSE)
 
 Copyright (c) 2021 fantasticmao
