@@ -24,4 +24,4 @@
 - Analyze multiple files at the same time
 - Analyze .gz compressed files
 - Support a variety
-  of [statistical indicators](https://github.com/fantasticmao/nginx-json-log-analyzer#specify-the-analysis-type--t)
+  of [statistical indicators](https://github.com/fantasticmao/nginx-log-analyzer#specify-the-analysis-type--t)
