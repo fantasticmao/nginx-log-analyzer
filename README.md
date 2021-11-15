@@ -11,12 +11,15 @@ README [English](README.md) | [中文](README_ZH.md)
 
 ## What is it
 
-Nginx-Log-Analyzer is a lightweight (simplistic) JSON format log analyzer, used to analyze Nginx access logs for myself.
+Nginx-Log-Analyzer is a lightweight (simplistic) log analyzer, used to analyze Nginx access logs for myself.
 
 Nginx-Log-Analyzer is written in Go programming language, needs only a 2 MB executable file to run, currently supported
 features are as follows:
 
 - [x] Filter logs based on the request time
+- [x] support multiple log format configurations
+    - combined (Nginx default configuration)
+    - JSON
 - [x] Analyze multiple files at the same time
 - [x] Analyze .gz compressed files
 - [x] Support a variety of [statistical indicators](#specify-the-analysis-type--t)
@@ -60,19 +63,32 @@ default configuration directory `${HOME}/.config/nginx-log-analyzer/`. The corre
 ~$ cp GeoLite2-City_20211109/GeoLite2-City.mmdb ${HOME}/.config/nginx-log-analyzer/City.mmdb
 ```
 
-### Configure Nginx
+#### Configure Nginx
 
-Nginx-Log-Analyzer can only parse Nginx access logs in JSON format, so you need to add the following `log_format`
+Nginx-Log-Analyzer parses Nginx access logs in combined format by default, which means that the logs will contain the
+following fields:
+
+- $remote_addr
+- $remote_user
+- $time_local
+- $request
+- $status
+- $body_bytes_sent
+- $http_referer
+- $http_user_agent
+
+When using Nginx-Log-Analyzer, if you need more types of statistical indicators, then you will need to use
+the `-lf json` option to specify the log parsing mode to the JSON format, and need to add the following `log_format`
 and `access_log` directives in the Nginx configuration:
 
 ```text
-log_format json_log escape=json '{"$time_local":"$time_local",'
-                                '"remote_addr":"$remote_addr",'
-                                '"request_time":$request_time,'
+log_format json_log escape=json '{"remote_addr":"$remote_addr",'
+                                '"time_local":"$time_local",'
                                 '"request":"$request",'
                                 '"status":$status,'
                                 '"body_bytes_sent":$body_bytes_sent,'
-                                '"http_user_agent":"$http_user_agent"}';
+                                '"http_user_agent":"$http_user_agent",'
+                                '"request_time":$request_time}';
 access_log /path/to/access.json.log json_log;
 ```
 
@@ -97,6 +113,11 @@ The `-v` options show Nginx-Log-Analyzer's build version, build time, and Git Co
 
 The `-d` option specify the configuration directory that Nginx-Log-Analyzer required at runtime, the default value
 is `${HOME}/.config/nginx-log-analyzer/`.
+
+#### specify the log format -lf
+
+The `-lf` option specify the log format parsed by Nginx-Log-Analyzer, available values are combined and json, the
+default value is combined.
 
 #### specify the analysis type -t
 

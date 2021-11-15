@@ -11,11 +11,14 @@ README [English](README.md) | [中文](README_ZH.md)
 
 ## 这是什么
 
-Nginx-Log-Analyzer 是一个轻量的（简陋的）JSON 格式日志的分析工具，用于满足我自己对 Nginx 访问日志的分析需求。
+Nginx-Log-Analyzer 是一个轻量的（简陋的）的日志分析工具，用于满足我自己对 Nginx 访问日志的分析需求。
 
 Nginx-Log-Analyzer 采用 Go 语言来编写，运行时只需一个 2 MB 左右的可执行文件，目前支持的功能特性如下：
 
-- [x] 基于请求时间过滤数据
+- [x] 基于请求时间筛选数据
+- [x] 支持多种日志格式配置
+    - combined（Nginx 默认配置）
+    - JSON
 - [x] 支持同时分析多个文件
 - [x] 支持分析 .gz 压缩文件
 - [x] 支持多种 [统计指标](#指定分析类型--t)
@@ -53,18 +56,30 @@ GeoIP2，以 [署名-相同方式共享 4.0 国际](https://creativecommons.org/
 ~$ cp GeoLite2-City_20211109/GeoLite2-City.mmdb ${HOME}/.config/nginx-log-analyzer/City.mmdb
 ```
 
-### 配置 Nginx
+#### 配置 Nginx
 
-Nginx-Log-Analyzer 仅支持解析 JSON 格式的 Nginx 访问日志，因此需要在 Nginx 配置中添加如下的 `log_format` 和 `access_log` 指令：
+Nginx-Log-Analyzer 默认解析 combined 格式的 Nginx 访问日志，这意味着日志中将包含以下字段：
+
+- $remote_addr
+- $remote_user
+- $time_local
+- $request
+- $status
+- $body_bytes_sent
+- $http_referer
+- $http_user_agent
+
+在使用 Nginx-Log-Analyzer 时，如果需要更多类型的 [统计指标](#指定分析类型--t)，则需要使用 `-lf json` 选项指定 JSON 格式的日志解析模式， 并且需要在 Nginx
+配置中添加如下的 `log_format` 和 `access_log` 指令：
 
 ```text
-log_format json_log escape=json '{"$time_local":"$time_local",'
-                                '"remote_addr":"$remote_addr",'
-                                '"request_time":$request_time,'
+log_format json_log escape=json '{"remote_addr":"$remote_addr",'
+                                '"time_local":"$time_local",'
                                 '"request":"$request",'
                                 '"status":$status,'
                                 '"body_bytes_sent":$body_bytes_sent,'
-                                '"http_user_agent":"$http_user_agent"}';
+                                '"http_user_agent":"$http_user_agent",'
+                                '"request_time":$request_time}';
 access_log /path/to/access.json.log json_log;
 ```
 
@@ -87,6 +102,10 @@ access_log /path/to/access.json.log json_log;
 #### 指定配置目录 -d
 
 `-d` 选项可以指定 Nginx-Log-Analyzer 运行时需要的配置目录，默认的配置目录为 `${HOME}/.config/nginx-log-analyzer/`。
+
+#### 指定日志格式 -lf
+
+`-lf` 选项可以指定 Nginx-Log-Analyzer 解析的日志格式，可用的值为 combined 和 json，默认值为 combined。
 
 #### 指定分析类型 -t
 
