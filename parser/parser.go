@@ -67,7 +67,7 @@ func (parser *CombinedParser) ParseLog(line []byte) *LogInfo {
 		j         = 0 // variable end index
 		k         = 0 // delimiters and variables index
 	)
-	for j < len(line) && k < len(parser.delimiters) {
+	for k < len(parser.delimiters) && j <= len(line)-len(parser.delimiters[k]) {
 		if bytes.Equal(line[j:j+len(parser.delimiters[k])], parser.delimiters[k]) {
 			variables = append(variables, string(line[i:j]))
 			j = j + len(parser.delimiters[k])
