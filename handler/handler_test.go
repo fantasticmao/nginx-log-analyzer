@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/fantasticmao/nginx-json-log-analyzer/parser"
+	"github.com/fantasticmao/nginx-log-analyzer/parser"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

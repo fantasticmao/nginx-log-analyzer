@@ -3,7 +3,7 @@ package parser
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/fantasticmao/nginx-json-log-analyzer/ioutil"
+	"github.com/fantasticmao/nginx-log-analyzer/ioutil"
 	"strconv"
 	"time"
 )

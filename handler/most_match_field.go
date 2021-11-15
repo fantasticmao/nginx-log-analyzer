@@ -2,8 +2,8 @@ package handler
 
 import (
 	"fmt"
-	"github.com/fantasticmao/nginx-json-log-analyzer/ioutil"
-	"github.com/fantasticmao/nginx-json-log-analyzer/parser"
+	"github.com/fantasticmao/nginx-log-analyzer/ioutil"
+	"github.com/fantasticmao/nginx-log-analyzer/parser"
 	"sort"
 )
 

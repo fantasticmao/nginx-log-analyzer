@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/fantasticmao/nginx-json-log-analyzer/handler"
-	"github.com/fantasticmao/nginx-json-log-analyzer/ioutil"
-	"github.com/fantasticmao/nginx-json-log-analyzer/parser"
+	"github.com/fantasticmao/nginx-log-analyzer/handler"
+	"github.com/fantasticmao/nginx-log-analyzer/ioutil"
+	"github.com/fantasticmao/nginx-log-analyzer/parser"
 	"io"
 	"os"
 	"path"
@@ -26,7 +26,7 @@ var (
 )
 
 var (
-	Name       = "nginx-json-log-analyzer"
+	Name       = "nginx-log-analyzer"
 	Version    string
 	BuildTime  string
 	CommitHash string
@@ -35,7 +35,7 @@ var (
 func init() {
 	flag.BoolVar(&showVersion, "v", false, "show current version")
 	flag.StringVar(&configDir, "d", "", "specify the configuration directory")
-	flag.IntVar(&analysisType, "t", 0, "specify the analysis type, see documentation for more details:\nhttps://github.com/fantasticmao/nginx-json-log-analyzer#specify-the-analysis-type--t")
+	flag.IntVar(&analysisType, "t", 0, "specify the analysis type, see documentation for more details:\nhttps://github.com/fantasticmao/nginx-log-analyzer#specify-the-analysis-type--t")
 	flag.IntVar(&limit, "n", 15, "limit the output lines number")
 	flag.IntVar(&limitSecond, "n2", 15, "limit the secondary output lines number in '-t 4' mode")
 	flag.Float64Var(&percentile, "p", 95, "specify the percentile value in '-t 7' mode")
