@@ -17,7 +17,7 @@ Nginx-Log-Analyzer is written in Go programming language, needs only a 2 MB exec
 features are as follows:
 
 - [x] Filter logs based on the request time
-- [x] support multiple log format configurations
+- [x] Support multiple log format configurations
     - combined (Nginx default configuration)
     - JSON
 - [x] Analyze multiple files at the same time
@@ -77,9 +77,9 @@ following fields:
 - $http_referer
 - $http_user_agent
 
-When using Nginx-Log-Analyzer, if you need more types of statistical indicators, then you will need to use
-the `-lf json` option to specify the log parsing mode to the JSON format, and need to add the following `log_format`
-and `access_log` directives in the Nginx configuration:
+When using Nginx-Log-Analyzer, if you need more types of [statistical indicators](#specify-the-analysis-type--t), then
+you will need to use the `-lf json` option to specify the log parsing mode to the JSON format, and need to add the
+following `log_format` and `access_log` directives in the Nginx configuration:
 
 ```text
 log_format json_log escape=json '{"remote_addr":"$remote_addr",'
