@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"github.com/fantasticmao/nginx-json-log-analyzer/ioutil"
+	"github.com/fantasticmao/nginx-json-log-analyzer/parser"
 	"github.com/oschwald/geoip2-golang"
 	"net"
 	"sort"
@@ -48,7 +49,7 @@ func NewMostVisitedCities(dbFile string, limitSecond int) *MostVisitedCities {
 	}
 }
 
-func (handler *MostVisitedCities) Input(info *ioutil.LogInfo) {
+func (handler *MostVisitedCities) Input(info *parser.LogInfo) {
 	ip := net.ParseIP(info.RemoteAddr)
 	country, city := handler.queryIpLocation(ip)
 

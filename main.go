@@ -112,9 +112,9 @@ func newLogHandler() handler.Handler {
 
 func newLogParser() parser.Parser {
 	switch logFormat {
-	case parser.LogFormatCombined:
+	case parser.LogFormatTypeCombined:
 		return parser.NewCombinedParser()
-	case parser.LogFormatJson:
+	case parser.LogFormatTypeJson:
 		return parser.NewJsonParser()
 	default:
 		ioutil.Fatal("unsupported log format : %v\n", logFormat)
@@ -137,11 +137,11 @@ func process(logFiles []string, p parser.Parser, h handler.Handler, since, util 
 			}
 
 			// 2. parse line
-			logInfo := p.Parse(data)
+			logInfo := p.ParseLog(data)
 
 			// 3. datetime filter
 			if !since.IsZero() || !util.IsZero() {
-				logTime := ioutil.ParseTime(logInfo.TimeLocal)
+				logTime := parser.ParseTime(logInfo.TimeLocal)
 				if !since.IsZero() && logTime.Before(since) {
 					// go to next line
 					continue

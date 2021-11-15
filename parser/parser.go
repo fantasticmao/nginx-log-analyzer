@@ -5,15 +5,24 @@ import (
 	"encoding/json"
 	"github.com/fantasticmao/nginx-json-log-analyzer/ioutil"
 	"strconv"
+	"time"
 )
 
 const (
-	LogFormatCombined = "combined"
-	LogFormatJson     = "json"
+	LogFormatTypeCombined = "combined"
+	LogFormatTypeJson     = "json"
 )
 
+func ParseTime(timeLocal string) time.Time {
+	t, err := time.Parse("02/Jan/2006:15:04:05 -0700", timeLocal)
+	if err != nil {
+		ioutil.Fatal("parse log time error: %v\n", err.Error())
+	}
+	return t
+}
+
 type Parser interface {
-	Parse(line []byte) *ioutil.LogInfo
+	ParseLog(line []byte) *LogInfo
 }
 
 type JsonParser struct {
@@ -23,8 +32,8 @@ func NewJsonParser() *JsonParser {
 	return &JsonParser{}
 }
 
-func (parser *JsonParser) Parse(line []byte) *ioutil.LogInfo {
-	logInfo := &ioutil.LogInfo{}
+func (parser *JsonParser) ParseLog(line []byte) *LogInfo {
+	logInfo := &LogInfo{}
 	err := json.Unmarshal(line[:len(line)-1], logInfo)
 	if err != nil {
 		ioutil.Fatal("parse json log error: %v\n", err.Error())
@@ -51,7 +60,7 @@ func NewCombinedParser() *CombinedParser {
 	}
 }
 
-func (parser *CombinedParser) Parse(line []byte) *ioutil.LogInfo {
+func (parser *CombinedParser) ParseLog(line []byte) *LogInfo {
 	var (
 		variables = make([]string, 0, 8)
 		i         = 0 // variable start index
@@ -79,7 +88,7 @@ func (parser *CombinedParser) Parse(line []byte) *ioutil.LogInfo {
 	if err != nil {
 		ioutil.Fatal("convert $body_bytes_sent to int error: %v\n", variables[5])
 	}
-	return &ioutil.LogInfo{
+	return &LogInfo{
 		RemoteAddr:    variables[0],
 		RemoteUser:    variables[1],
 		TimeLocal:     variables[2],

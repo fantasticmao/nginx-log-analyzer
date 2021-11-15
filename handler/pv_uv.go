@@ -2,7 +2,7 @@ package handler
 
 import (
 	"fmt"
-	"github.com/fantasticmao/nginx-json-log-analyzer/ioutil"
+	"github.com/fantasticmao/nginx-json-log-analyzer/parser"
 )
 
 type PvAndUvHandler struct {
@@ -19,7 +19,7 @@ func NewPvAndUvHandler() *PvAndUvHandler {
 	}
 }
 
-func (handler *PvAndUvHandler) Input(info *ioutil.LogInfo) {
+func (handler *PvAndUvHandler) Input(info *parser.LogInfo) {
 	handler.pv++
 	if _, ok := handler.uniqMap[info.RemoteAddr]; !ok {
 		handler.uv++

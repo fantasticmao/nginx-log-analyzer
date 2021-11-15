@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"github.com/fantasticmao/nginx-json-log-analyzer/ioutil"
+	"github.com/fantasticmao/nginx-json-log-analyzer/parser"
 	"math"
 	"sort"
 )
@@ -23,7 +24,7 @@ func NewTopTimePercentCostUrisHandler(percentile float64) *TopTimePercentCostUri
 	}
 }
 
-func (handler *TopTimePercentCostUrisHandler) Input(info *ioutil.LogInfo) {
+func (handler *TopTimePercentCostUrisHandler) Input(info *parser.LogInfo) {
 	if _, ok := handler.timeCostListMap[info.Request]; ok {
 		handler.timeCostListMap[info.Request] = append(handler.timeCostListMap[info.Request], info.RequestTime)
 	} else {

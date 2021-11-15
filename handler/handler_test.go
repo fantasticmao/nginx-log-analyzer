@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/fantasticmao/nginx-json-log-analyzer/ioutil"
+	"github.com/fantasticmao/nginx-json-log-analyzer/parser"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -32,12 +32,12 @@ var (
 
 func TestPvAndUv(t *testing.T) {
 	handler := NewPvAndUvHandler()
-	handler.Input(&ioutil.LogInfo{RemoteAddr: ip1})
-	handler.Input(&ioutil.LogInfo{RemoteAddr: ip1})
-	handler.Input(&ioutil.LogInfo{RemoteAddr: ip1})
-	handler.Input(&ioutil.LogInfo{RemoteAddr: ip2})
-	handler.Input(&ioutil.LogInfo{RemoteAddr: ip2})
-	handler.Input(&ioutil.LogInfo{RemoteAddr: ip3})
+	handler.Input(&parser.LogInfo{RemoteAddr: ip1})
+	handler.Input(&parser.LogInfo{RemoteAddr: ip1})
+	handler.Input(&parser.LogInfo{RemoteAddr: ip1})
+	handler.Input(&parser.LogInfo{RemoteAddr: ip2})
+	handler.Input(&parser.LogInfo{RemoteAddr: ip2})
+	handler.Input(&parser.LogInfo{RemoteAddr: ip3})
 	handler.Output(limit)
 
 	assert.Equal(t, int32(6), handler.pv)
@@ -46,12 +46,12 @@ func TestPvAndUv(t *testing.T) {
 
 func TestMostMatchFieldIp(t *testing.T) {
 	handler := NewMostMatchFieldHandler(AnalysisTypeFieldIp)
-	handler.Input(&ioutil.LogInfo{RemoteAddr: ip1})
-	handler.Input(&ioutil.LogInfo{RemoteAddr: ip1})
-	handler.Input(&ioutil.LogInfo{RemoteAddr: ip1})
-	handler.Input(&ioutil.LogInfo{RemoteAddr: ip2})
-	handler.Input(&ioutil.LogInfo{RemoteAddr: ip2})
-	handler.Input(&ioutil.LogInfo{RemoteAddr: ip3})
+	handler.Input(&parser.LogInfo{RemoteAddr: ip1})
+	handler.Input(&parser.LogInfo{RemoteAddr: ip1})
+	handler.Input(&parser.LogInfo{RemoteAddr: ip1})
+	handler.Input(&parser.LogInfo{RemoteAddr: ip2})
+	handler.Input(&parser.LogInfo{RemoteAddr: ip2})
+	handler.Input(&parser.LogInfo{RemoteAddr: ip3})
 	handler.Output(limit)
 
 	assert.Equal(t, 3, handler.countMap[ip1])
@@ -61,12 +61,12 @@ func TestMostMatchFieldIp(t *testing.T) {
 
 func TestMostMatchFieldUri(t *testing.T) {
 	handler := NewMostMatchFieldHandler(AnalysisTypeFieldUri)
-	handler.Input(&ioutil.LogInfo{Request: uri1})
-	handler.Input(&ioutil.LogInfo{Request: uri1})
-	handler.Input(&ioutil.LogInfo{Request: uri1})
-	handler.Input(&ioutil.LogInfo{Request: uri2})
-	handler.Input(&ioutil.LogInfo{Request: uri2})
-	handler.Input(&ioutil.LogInfo{Request: uri3})
+	handler.Input(&parser.LogInfo{Request: uri1})
+	handler.Input(&parser.LogInfo{Request: uri1})
+	handler.Input(&parser.LogInfo{Request: uri1})
+	handler.Input(&parser.LogInfo{Request: uri2})
+	handler.Input(&parser.LogInfo{Request: uri2})
+	handler.Input(&parser.LogInfo{Request: uri3})
 	handler.Output(limit)
 
 	assert.Equal(t, 3, handler.countMap[uri1])
@@ -76,12 +76,12 @@ func TestMostMatchFieldUri(t *testing.T) {
 
 func TestMostMatchFieldUserAgent(t *testing.T) {
 	handler := NewMostMatchFieldHandler(AnalysisTypeFieldUserAgent)
-	handler.Input(&ioutil.LogInfo{HttpUserAgent: userAgent1})
-	handler.Input(&ioutil.LogInfo{HttpUserAgent: userAgent1})
-	handler.Input(&ioutil.LogInfo{HttpUserAgent: userAgent1})
-	handler.Input(&ioutil.LogInfo{HttpUserAgent: userAgent2})
-	handler.Input(&ioutil.LogInfo{HttpUserAgent: userAgent2})
-	handler.Input(&ioutil.LogInfo{HttpUserAgent: userAgent3})
+	handler.Input(&parser.LogInfo{HttpUserAgent: userAgent1})
+	handler.Input(&parser.LogInfo{HttpUserAgent: userAgent1})
+	handler.Input(&parser.LogInfo{HttpUserAgent: userAgent1})
+	handler.Input(&parser.LogInfo{HttpUserAgent: userAgent2})
+	handler.Input(&parser.LogInfo{HttpUserAgent: userAgent2})
+	handler.Input(&parser.LogInfo{HttpUserAgent: userAgent3})
 	handler.Output(limit)
 
 	assert.Equal(t, 3, handler.countMap[userAgent1])
@@ -94,12 +94,12 @@ func TestMostVisitedCities(t *testing.T) {
 	assert.NotNil(t, handler.geoLite2Db)
 
 	// see https://github.com/maxmind/MaxMind-DB/blob/main/source-data/GeoLite2-City-Test.json
-	handler.Input(&ioutil.LogInfo{RemoteAddr: "175.16.199.0"}) // China -> Changchun
-	handler.Input(&ioutil.LogInfo{RemoteAddr: "175.16.199.0"})
-	handler.Input(&ioutil.LogInfo{RemoteAddr: "175.16.199.0"})
-	handler.Input(&ioutil.LogInfo{RemoteAddr: "2.125.160.216"}) // United Kingdom -> Boxford
-	handler.Input(&ioutil.LogInfo{RemoteAddr: "2.125.160.216"})
-	handler.Input(&ioutil.LogInfo{RemoteAddr: "2001:218::"}) // Japan -> unknown
+	handler.Input(&parser.LogInfo{RemoteAddr: "175.16.199.0"}) // China -> Changchun
+	handler.Input(&parser.LogInfo{RemoteAddr: "175.16.199.0"})
+	handler.Input(&parser.LogInfo{RemoteAddr: "175.16.199.0"})
+	handler.Input(&parser.LogInfo{RemoteAddr: "2.125.160.216"}) // United Kingdom -> Boxford
+	handler.Input(&parser.LogInfo{RemoteAddr: "2.125.160.216"})
+	handler.Input(&parser.LogInfo{RemoteAddr: "2001:218::"}) // Japan -> unknown
 	handler.Output(limit)
 
 	assert.Equal(t, 3, handler.countryCountMap["中国 China"])
@@ -117,12 +117,12 @@ func TestMostVisitedCities(t *testing.T) {
 
 func TestMostFrequentStatusHandler(t *testing.T) {
 	handler := NewMostFrequentStatusHandler()
-	handler.Input(&ioutil.LogInfo{Status: responseStatus1, Request: uri1})
-	handler.Input(&ioutil.LogInfo{Status: responseStatus2, Request: uri1})
-	handler.Input(&ioutil.LogInfo{Status: responseStatus3, Request: uri1})
-	handler.Input(&ioutil.LogInfo{Status: responseStatus1, Request: uri2})
-	handler.Input(&ioutil.LogInfo{Status: responseStatus2, Request: uri2})
-	handler.Input(&ioutil.LogInfo{Status: responseStatus3, Request: uri3})
+	handler.Input(&parser.LogInfo{Status: responseStatus1, Request: uri1})
+	handler.Input(&parser.LogInfo{Status: responseStatus2, Request: uri1})
+	handler.Input(&parser.LogInfo{Status: responseStatus3, Request: uri1})
+	handler.Input(&parser.LogInfo{Status: responseStatus1, Request: uri2})
+	handler.Input(&parser.LogInfo{Status: responseStatus2, Request: uri2})
+	handler.Input(&parser.LogInfo{Status: responseStatus3, Request: uri3})
 	handler.Output(limit)
 
 	assert.Equal(t, 2, handler.statusCountMap[responseStatus1])
@@ -139,12 +139,12 @@ func TestMostFrequentStatusHandler(t *testing.T) {
 
 func TestTopTimeMeanCostUris(t *testing.T) {
 	handler := NewTopTimeMeanCostUrisHandler()
-	handler.Input(&ioutil.LogInfo{Request: uri1, RequestTime: responseTime1})
-	handler.Input(&ioutil.LogInfo{Request: uri1, RequestTime: responseTime2})
-	handler.Input(&ioutil.LogInfo{Request: uri1, RequestTime: responseTime3})
-	handler.Input(&ioutil.LogInfo{Request: uri2, RequestTime: responseTime1})
-	handler.Input(&ioutil.LogInfo{Request: uri2, RequestTime: responseTime2})
-	handler.Input(&ioutil.LogInfo{Request: uri3, RequestTime: responseTime1})
+	handler.Input(&parser.LogInfo{Request: uri1, RequestTime: responseTime1})
+	handler.Input(&parser.LogInfo{Request: uri1, RequestTime: responseTime2})
+	handler.Input(&parser.LogInfo{Request: uri1, RequestTime: responseTime3})
+	handler.Input(&parser.LogInfo{Request: uri2, RequestTime: responseTime1})
+	handler.Input(&parser.LogInfo{Request: uri2, RequestTime: responseTime2})
+	handler.Input(&parser.LogInfo{Request: uri3, RequestTime: responseTime1})
 	handler.Output(limit)
 
 	assert.Equal(t, []float64{responseTime1, responseTime2, responseTime3}, handler.timeCostListMap[uri1])
@@ -154,12 +154,12 @@ func TestTopTimeMeanCostUris(t *testing.T) {
 
 func TestTopTimePercentCostUris(t *testing.T) {
 	handler := NewTopTimePercentCostUrisHandler(50)
-	handler.Input(&ioutil.LogInfo{Request: uri1, RequestTime: responseTime1})
-	handler.Input(&ioutil.LogInfo{Request: uri1, RequestTime: responseTime2})
-	handler.Input(&ioutil.LogInfo{Request: uri1, RequestTime: responseTime3})
-	handler.Input(&ioutil.LogInfo{Request: uri2, RequestTime: responseTime1})
-	handler.Input(&ioutil.LogInfo{Request: uri2, RequestTime: responseTime2})
-	handler.Input(&ioutil.LogInfo{Request: uri3, RequestTime: responseTime1})
+	handler.Input(&parser.LogInfo{Request: uri1, RequestTime: responseTime1})
+	handler.Input(&parser.LogInfo{Request: uri1, RequestTime: responseTime2})
+	handler.Input(&parser.LogInfo{Request: uri1, RequestTime: responseTime3})
+	handler.Input(&parser.LogInfo{Request: uri2, RequestTime: responseTime1})
+	handler.Input(&parser.LogInfo{Request: uri2, RequestTime: responseTime2})
+	handler.Input(&parser.LogInfo{Request: uri3, RequestTime: responseTime1})
 	handler.Output(limit)
 
 	assert.Equal(t, []float64{responseTime1, responseTime2, responseTime3}, handler.timeCostListMap[uri1])
