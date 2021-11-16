@@ -5,14 +5,14 @@ import (
 )
 
 const (
-	AnalysisTypePvUv = iota
-	AnalysisTypeFieldIp
-	AnalysisTypeFieldUri
-	AnalysisTypeFieldUserAgent
-	AnalysisTypeFieldUserCity
+	AnalysisTypePvAndUv = iota
+	AnalysisTypeVisitedIps
+	AnalysisTypeVisitedUris
+	AnalysisTypeVisitedUserAgents
+	AnalysisTypeVisitedLocations
 	AnalysisTypeResponseStatus
-	AnalysisTypeTimeMeanCostUris
-	AnalysisTypeTimePercentCostUris
+	AnalysisTypeAverageTimeUris
+	AnalysisTypePercentTimeUris
 )
 
 type Handler interface {

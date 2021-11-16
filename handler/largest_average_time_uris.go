@@ -6,17 +6,17 @@ import (
 	"sort"
 )
 
-type TopTimeMeanCostUrisHandler struct {
+type LargestAverageTimeUrisHandler struct {
 	timeCostListMap map[string][]float64
 }
 
-func NewTopTimeMeanCostUrisHandler() *TopTimeMeanCostUrisHandler {
-	return &TopTimeMeanCostUrisHandler{
+func NewLargestAverageTimeUrisHandler() *LargestAverageTimeUrisHandler {
+	return &LargestAverageTimeUrisHandler{
 		timeCostListMap: make(map[string][]float64),
 	}
 }
 
-func (handler *TopTimeMeanCostUrisHandler) Input(info *parser.LogInfo) {
+func (handler *LargestAverageTimeUrisHandler) Input(info *parser.LogInfo) {
 	if _, ok := handler.timeCostListMap[info.Request]; ok {
 		handler.timeCostListMap[info.Request] = append(handler.timeCostListMap[info.Request], info.RequestTime)
 	} else {
@@ -25,7 +25,7 @@ func (handler *TopTimeMeanCostUrisHandler) Input(info *parser.LogInfo) {
 	}
 }
 
-func (handler *TopTimeMeanCostUrisHandler) Output(limit int) {
+func (handler *LargestAverageTimeUrisHandler) Output(limit int) {
 	timeCostMap := make(map[string]float64)
 	for uri, costList := range handler.timeCostListMap {
 		var sum = 0.0
@@ -45,6 +45,6 @@ func (handler *TopTimeMeanCostUrisHandler) Output(limit int) {
 	})
 
 	for i := 0; i < limit && i < len(keys); i++ {
-		fmt.Printf("\"%v\" mean response-time: %.3f\n", keys[i], timeCostMap[keys[i]])
+		fmt.Printf("\"%v\" average response-time: %.3f\n", keys[i], timeCostMap[keys[i]])
 	}
 }

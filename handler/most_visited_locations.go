@@ -23,7 +23,7 @@ const (
 	languageZhCn = "zh-CN"
 )
 
-type MostVisitedCities struct {
+type MostVisitedLocationsHandler struct {
 	limitSecond int
 	geoLite2Db  *geoip2.Reader
 	// country -> count
@@ -34,13 +34,13 @@ type MostVisitedCities struct {
 	countryCityIpCountMap map[string]map[string]map[string]int
 }
 
-func NewMostVisitedCities(dbFile string, limitSecond int) *MostVisitedCities {
+func NewMostVisitedLocationsHandler(dbFile string, limitSecond int) *MostVisitedLocationsHandler {
 	db, err := geoip2.Open(dbFile)
 	if err != nil {
 		ioutil.Fatal("open MaxMind-DB error: %v\n", err.Error())
 		return nil
 	}
-	return &MostVisitedCities{
+	return &MostVisitedLocationsHandler{
 		limitSecond:           limitSecond,
 		geoLite2Db:            db,
 		countryCountMap:       make(map[string]int),
@@ -49,7 +49,7 @@ func NewMostVisitedCities(dbFile string, limitSecond int) *MostVisitedCities {
 	}
 }
 
-func (handler *MostVisitedCities) Input(info *parser.LogInfo) {
+func (handler *MostVisitedLocationsHandler) Input(info *parser.LogInfo) {
 	ip := net.ParseIP(info.RemoteAddr)
 	country, city := handler.queryIpLocation(ip)
 
@@ -78,7 +78,7 @@ func (handler *MostVisitedCities) Input(info *parser.LogInfo) {
 	}
 }
 
-func (handler *MostVisitedCities) Output(limit int) {
+func (handler *MostVisitedLocationsHandler) Output(limit int) {
 	defer handler.geoLite2Db.Close()
 
 	countryCountKeys := make([]string, 0, len(handler.countryCityIpCountMap))
@@ -123,7 +123,7 @@ func (handler *MostVisitedCities) Output(limit int) {
 	}
 }
 
-func (handler *MostVisitedCities) queryIpLocation(ip net.IP) (string, string) {
+func (handler *MostVisitedLocationsHandler) queryIpLocation(ip net.IP) (string, string) {
 	record, err := handler.geoLite2Db.City(ip)
 	if record == nil {
 		ioutil.Fatal("query from MaxMind-DB error: record is nil\n")

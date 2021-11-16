@@ -8,23 +8,23 @@ import (
 	"sort"
 )
 
-type TopTimePercentCostUrisHandler struct {
+type LargestPercentTimeUrisHandler struct {
 	percentile      float64
 	timeCostListMap map[string][]float64
 }
 
-func NewTopTimePercentCostUrisHandler(percentile float64) *TopTimePercentCostUrisHandler {
+func NewLargestPercentTimeUrisHandler(percentile float64) *LargestPercentTimeUrisHandler {
 	if percentile <= 0 || percentile > 100 {
 		ioutil.Fatal("illegal argument percentile: %.3f\n", percentile)
 		return nil
 	}
-	return &TopTimePercentCostUrisHandler{
+	return &LargestPercentTimeUrisHandler{
 		percentile:      percentile,
 		timeCostListMap: make(map[string][]float64),
 	}
 }
 
-func (handler *TopTimePercentCostUrisHandler) Input(info *parser.LogInfo) {
+func (handler *LargestPercentTimeUrisHandler) Input(info *parser.LogInfo) {
 	if _, ok := handler.timeCostListMap[info.Request]; ok {
 		handler.timeCostListMap[info.Request] = append(handler.timeCostListMap[info.Request], info.RequestTime)
 	} else {
@@ -33,7 +33,7 @@ func (handler *TopTimePercentCostUrisHandler) Input(info *parser.LogInfo) {
 	}
 }
 
-func (handler *TopTimePercentCostUrisHandler) Output(limit int) {
+func (handler *LargestPercentTimeUrisHandler) Output(limit int) {
 	timeCostMap := make(map[string]float64)
 	for uri, costList := range handler.timeCostListMap {
 		sort.Float64s(costList)

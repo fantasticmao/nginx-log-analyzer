@@ -132,8 +132,8 @@ follows:
 | ✅        | 3                  | Most visited User-Agents                                                         | $http_user_agent                                                                                                                                                 |
 | ✅        | 4                  | Most visited user countries and cities                                           | $remote_addr, MaxMind [GeoIP2](https://www.maxmind.com/en/geoip2-city) or [GeoLite2](https://dev.maxmind.com/geoip/geolite2-free-geolocation-data) City Database |
 | ✅        | 5                  | Most frequent response status                                                    | $status, $request                                                                                                                                                |
-| ✅        | 6                  | Largest URI mean response times                                                  | $request, $request_time                                                                                                                                          |
-| ✅        | 7                  | Largest URI percentile response times, e.g. p1(min), p50(median), p95, p100(max) | $request, $request_time                                                                                                                                          |
+| ✅        | 6                  | Largest average response time URIs                                               | $request, $request_time                                                                                                                                          |
+| ✅        | 7                  | Largest percentile response time URIs, e.g. p1(min), p50(median), p95, p100(max) | $request, $request_time                                                                                                                                          |
 
 #### limit the analysis start and end time -ta -tb
 
@@ -185,7 +185,7 @@ The `-p` option specify the percentile value in the `-t 7` mode, the default val
 
 ![image](docs/t5.png)
 
-#### count the largest URI mean response times
+#### count the largest URI average response times
 
 ![image](docs/t6.png)
 
