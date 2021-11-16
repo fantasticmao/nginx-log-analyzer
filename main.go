@@ -87,23 +87,23 @@ func main() {
 
 func newLogHandler() handler.Handler {
 	switch analysisType {
-	case handler.AnalysisTypePvUv:
+	case handler.AnalysisTypePvAndUv:
 		return handler.NewPvAndUvHandler()
-	case handler.AnalysisTypeFieldIp:
-		return handler.NewMostMatchFieldHandler(analysisType)
-	case handler.AnalysisTypeFieldUri:
-		return handler.NewMostMatchFieldHandler(analysisType)
-	case handler.AnalysisTypeFieldUserAgent:
-		return handler.NewMostMatchFieldHandler(analysisType)
-	case handler.AnalysisTypeFieldUserCity:
+	case handler.AnalysisTypeVisitedIps:
+		return handler.NewMostVisitedFieldsHandler(analysisType)
+	case handler.AnalysisTypeVisitedUris:
+		return handler.NewMostVisitedFieldsHandler(analysisType)
+	case handler.AnalysisTypeVisitedUserAgents:
+		return handler.NewMostVisitedFieldsHandler(analysisType)
+	case handler.AnalysisTypeVisitedLocations:
 		const dbFile = "City.mmdb"
-		return handler.NewMostVisitedCities(path.Join(configDir, dbFile), limitSecond)
+		return handler.NewMostVisitedLocationsHandler(path.Join(configDir, dbFile), limitSecond)
 	case handler.AnalysisTypeResponseStatus:
 		return handler.NewMostFrequentStatusHandler()
-	case handler.AnalysisTypeTimeMeanCostUris:
-		return handler.NewTopTimeMeanCostUrisHandler()
-	case handler.AnalysisTypeTimePercentCostUris:
-		return handler.NewTopTimePercentCostUrisHandler(percentile)
+	case handler.AnalysisTypeAverageTimeUris:
+		return handler.NewLargestAverageTimeUrisHandler()
+	case handler.AnalysisTypePercentTimeUris:
+		return handler.NewLargestPercentTimeUrisHandler(percentile)
 	default:
 		ioutil.Fatal("unsupported analysis type: %v\n", analysisType)
 		return nil

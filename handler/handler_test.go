@@ -30,7 +30,7 @@ var (
 	responseTime3 = 0.3
 )
 
-func TestPvAndUv(t *testing.T) {
+func TestNewPvAndUvHandler(t *testing.T) {
 	handler := NewPvAndUvHandler()
 	handler.Input(&parser.LogInfo{RemoteAddr: ip1})
 	handler.Input(&parser.LogInfo{RemoteAddr: ip1})
@@ -44,8 +44,8 @@ func TestPvAndUv(t *testing.T) {
 	assert.Equal(t, int32(3), handler.uv)
 }
 
-func TestMostMatchFieldIp(t *testing.T) {
-	handler := NewMostMatchFieldHandler(AnalysisTypeFieldIp)
+func TestNewMostVisitedIpsHandler(t *testing.T) {
+	handler := NewMostVisitedFieldsHandler(AnalysisTypeVisitedIps)
 	handler.Input(&parser.LogInfo{RemoteAddr: ip1})
 	handler.Input(&parser.LogInfo{RemoteAddr: ip1})
 	handler.Input(&parser.LogInfo{RemoteAddr: ip1})
@@ -59,8 +59,8 @@ func TestMostMatchFieldIp(t *testing.T) {
 	assert.Equal(t, 1, handler.countMap[ip3])
 }
 
-func TestMostMatchFieldUri(t *testing.T) {
-	handler := NewMostMatchFieldHandler(AnalysisTypeFieldUri)
+func TestNewMostVisitedUrisHandler(t *testing.T) {
+	handler := NewMostVisitedFieldsHandler(AnalysisTypeVisitedUris)
 	handler.Input(&parser.LogInfo{Request: uri1})
 	handler.Input(&parser.LogInfo{Request: uri1})
 	handler.Input(&parser.LogInfo{Request: uri1})
@@ -74,8 +74,8 @@ func TestMostMatchFieldUri(t *testing.T) {
 	assert.Equal(t, 1, handler.countMap[uri3])
 }
 
-func TestMostMatchFieldUserAgent(t *testing.T) {
-	handler := NewMostMatchFieldHandler(AnalysisTypeFieldUserAgent)
+func TestNewMostVisitedUserAgentsHandler(t *testing.T) {
+	handler := NewMostVisitedFieldsHandler(AnalysisTypeVisitedUserAgents)
 	handler.Input(&parser.LogInfo{HttpUserAgent: userAgent1})
 	handler.Input(&parser.LogInfo{HttpUserAgent: userAgent1})
 	handler.Input(&parser.LogInfo{HttpUserAgent: userAgent1})
@@ -89,8 +89,8 @@ func TestMostMatchFieldUserAgent(t *testing.T) {
 	assert.Equal(t, 1, handler.countMap[userAgent3])
 }
 
-func TestMostVisitedCities(t *testing.T) {
-	handler := NewMostVisitedCities("../test-data/GeoLite2-City-Test.mmdb", limit)
+func TestNewMostVisitedLocationsHandler(t *testing.T) {
+	handler := NewMostVisitedLocationsHandler("../test-data/GeoLite2-City-Test.mmdb", limit)
 	assert.NotNil(t, handler.geoLite2Db)
 
 	// see https://github.com/maxmind/MaxMind-DB/blob/main/source-data/GeoLite2-City-Test.json
@@ -115,7 +115,7 @@ func TestMostVisitedCities(t *testing.T) {
 	assert.Equal(t, 1, handler.countryCityIpCountMap["日本 Japan"]["unknown"]["2001:218::"])
 }
 
-func TestMostFrequentStatusHandler(t *testing.T) {
+func TestNewMostFrequentStatusHandler(t *testing.T) {
 	handler := NewMostFrequentStatusHandler()
 	handler.Input(&parser.LogInfo{Status: responseStatus1, Request: uri1})
 	handler.Input(&parser.LogInfo{Status: responseStatus2, Request: uri1})
@@ -137,8 +137,8 @@ func TestMostFrequentStatusHandler(t *testing.T) {
 	assert.Equal(t, 1, handler.statusUriCountMap[responseStatus3][uri3])
 }
 
-func TestTopTimeMeanCostUris(t *testing.T) {
-	handler := NewTopTimeMeanCostUrisHandler()
+func TestNewLargestAverageTimeUrisHandler(t *testing.T) {
+	handler := NewLargestAverageTimeUrisHandler()
 	handler.Input(&parser.LogInfo{Request: uri1, RequestTime: responseTime1})
 	handler.Input(&parser.LogInfo{Request: uri1, RequestTime: responseTime2})
 	handler.Input(&parser.LogInfo{Request: uri1, RequestTime: responseTime3})
@@ -152,8 +152,8 @@ func TestTopTimeMeanCostUris(t *testing.T) {
 	assert.Equal(t, []float64{responseTime1}, handler.timeCostListMap[uri3])
 }
 
-func TestTopTimePercentCostUris(t *testing.T) {
-	handler := NewTopTimePercentCostUrisHandler(50)
+func TestNewLargestPercentTimeUrisHandler(t *testing.T) {
+	handler := NewLargestPercentTimeUrisHandler(50)
 	handler.Input(&parser.LogInfo{Request: uri1, RequestTime: responseTime1})
 	handler.Input(&parser.LogInfo{Request: uri1, RequestTime: responseTime2})
 	handler.Input(&parser.LogInfo{Request: uri1, RequestTime: responseTime3})

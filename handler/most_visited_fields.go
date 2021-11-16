@@ -7,26 +7,26 @@ import (
 	"sort"
 )
 
-type MostMatchFieldHandler struct {
+type MostVisitedFieldsHandler struct {
 	analysisType int
 	countMap     map[string]int
 }
 
-func NewMostMatchFieldHandler(analysisType int) *MostMatchFieldHandler {
-	return &MostMatchFieldHandler{
+func NewMostVisitedFieldsHandler(analysisType int) *MostVisitedFieldsHandler {
+	return &MostVisitedFieldsHandler{
 		analysisType: analysisType,
 		countMap:     make(map[string]int),
 	}
 }
 
-func (handler *MostMatchFieldHandler) Input(info *parser.LogInfo) {
+func (handler *MostVisitedFieldsHandler) Input(info *parser.LogInfo) {
 	var field string
 	switch handler.analysisType {
-	case AnalysisTypeFieldIp:
+	case AnalysisTypeVisitedIps:
 		field = info.RemoteAddr
-	case AnalysisTypeFieldUri:
+	case AnalysisTypeVisitedUris:
 		field = info.Request
-	case AnalysisTypeFieldUserAgent:
+	case AnalysisTypeVisitedUserAgents:
 		field = info.HttpUserAgent
 	default:
 		ioutil.Fatal("unsupported analysis type: %v\n", handler.analysisType)
@@ -40,7 +40,7 @@ func (handler *MostMatchFieldHandler) Input(info *parser.LogInfo) {
 	}
 }
 
-func (handler *MostMatchFieldHandler) Output(limit int) {
+func (handler *MostVisitedFieldsHandler) Output(limit int) {
 	keys := make([]string, 0, len(handler.countMap))
 	for k := range handler.countMap {
 		keys = append(keys, k)
