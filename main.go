@@ -13,16 +13,17 @@ import (
 )
 
 var (
-	logFiles     []string
-	showVersion  bool
-	configDir    string
-	analysisType int
-	limit        int
-	limitSecond  int
-	percentile   float64
-	timeAfter    string
-	timeBefore   string
-	logFormat    string
+	logFiles      []string
+	showVersion   bool
+	configDir     string
+	analysisType  int
+	limit         int
+	limitSecond   int
+	percentile    float64
+	timeAfter     string
+	timeBefore    string
+	logFormat     string
+	cacheCapacity int
 )
 
 var (
@@ -42,6 +43,7 @@ func init() {
 	flag.StringVar(&timeAfter, "ta", "", "limit the analysis start time, in format of RFC3339 e.g. '2021-11-01T00:00:00+08:00'")
 	flag.StringVar(&timeBefore, "tb", "", "limit the analysis end time, in format of RFC3339 e.g. '2021-11-02T00:00:00+08:00'")
 	flag.StringVar(&logFormat, "lf", "combined", "specify the nginx log format, value should be 'combined' or 'json'")
+	flag.IntVar(&cacheCapacity, "cacheCapacity", 1000, "specify the cache capacity for IP location query in '-t 4' mode")
 	flag.Parse()
 	logFiles = flag.Args()
 }
@@ -97,7 +99,7 @@ func newLogHandler() handler.Handler {
 		return handler.NewMostVisitedFieldsHandler(analysisType)
 	case handler.AnalysisTypeVisitedLocations:
 		const dbFile = "City.mmdb"
-		return handler.NewMostVisitedLocationsHandler(path.Join(configDir, dbFile), limitSecond)
+		return handler.NewMostVisitedLocationsHandler(path.Join(configDir, dbFile), limitSecond, cacheCapacity)
 	case handler.AnalysisTypeResponseStatus:
 		return handler.NewMostFrequentStatusHandler()
 	case handler.AnalysisTypeAverageTimeUris:
