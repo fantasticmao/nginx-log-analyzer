@@ -62,7 +62,7 @@ func ExampleNewMostVisitedUserAgentsHandler() {
 }
 
 func ExampleNewMostVisitedLocationsHandler() {
-	handler := NewMostVisitedLocationsHandler("../testdata/GeoLite2-City-Test.mmdb", limit, 1000)
+	handler := NewMostVisitedLocationsHandler("../testdata/GeoLite2-City-Test.mmdb", limit)
 
 	// see https://github.com/maxmind/MaxMind-DB/blob/main/source-data/GeoLite2-City-Test.json
 	handler.Input(&parser.LogInfo{RemoteAddr: "175.16.199.0"}) // China -> Changchun

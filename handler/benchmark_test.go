@@ -12,11 +12,10 @@ var (
 		"81.2.69.144", "89.160.20.112", "175.16.199.0",
 		"2001:218::", "2001:252::", "2001:230::",
 	}
-	cacheCapacity = 1000
 )
 
 func BenchmarkQueryIpLocation(b *testing.B) {
-	handler := NewMostVisitedLocationsHandler("../testdata/GeoLite2-City-Test.mmdb", limit, cacheCapacity)
+	handler := NewMostVisitedLocationsHandler("../testdata/GeoLite2-City-Test.mmdb", limit)
 
 	for i, l := 0, len(ips); i < b.N; i++ {
 		ip := ips[rand.Intn(l)]
@@ -25,7 +24,7 @@ func BenchmarkQueryIpLocation(b *testing.B) {
 }
 
 func BenchmarkCachedQueryIpLocation(b *testing.B) {
-	handler := NewMostVisitedLocationsHandler("../testdata/GeoLite2-City-Test.mmdb", limit, cacheCapacity)
+	handler := NewMostVisitedLocationsHandler("../testdata/GeoLite2-City-Test.mmdb", limit)
 
 	for i, l := 0, len(ips); i < b.N; i++ {
 		ip := ips[rand.Intn(l)]

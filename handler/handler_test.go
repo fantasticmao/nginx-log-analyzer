@@ -86,7 +86,7 @@ func TestNewMostVisitedUserAgentsHandler(t *testing.T) {
 }
 
 func TestNewMostVisitedLocationsHandler(t *testing.T) {
-	handler := NewMostVisitedLocationsHandler("../testdata/GeoLite2-City-Test.mmdb", limit, 1000)
+	handler := NewMostVisitedLocationsHandler("../testdata/GeoLite2-City-Test.mmdb", limit)
 	assert.NotNil(t, handler.geoLite2Db)
 
 	// see https://github.com/maxmind/MaxMind-DB/blob/main/source-data/GeoLite2-City-Test.json

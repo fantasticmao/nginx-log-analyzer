@@ -41,7 +41,7 @@ type locationEntry struct {
 	city    string
 }
 
-func NewMostVisitedLocationsHandler(dbFile string, limitSecond int, cacheCapacity int) *MostVisitedLocationsHandler {
+func NewMostVisitedLocationsHandler(dbFile string, limitSecond int) *MostVisitedLocationsHandler {
 	db, err := geoip2.Open(dbFile)
 	if err != nil {
 		ioutil.Fatal("open MaxMind-DB error: %v\n", err.Error())
@@ -50,7 +50,7 @@ func NewMostVisitedLocationsHandler(dbFile string, limitSecond int, cacheCapacit
 	return &MostVisitedLocationsHandler{
 		limitSecond:           limitSecond,
 		geoLite2Db:            db,
-		ipLocationCache:       cache.NewLruCache(cacheCapacity),
+		ipLocationCache:       cache.NewLruCache(1000),
 		countryCountMap:       make(map[string]int),
 		countryCityCountMap:   make(map[string]map[string]int),
 		countryCityIpCountMap: make(map[string]map[string]map[string]int),
@@ -58,7 +58,7 @@ func NewMostVisitedLocationsHandler(dbFile string, limitSecond int, cacheCapacit
 }
 
 func (handler *MostVisitedLocationsHandler) Input(info *parser.LogInfo) {
-	country, city := handler.cachedQueryIpLocation(info.RemoteAddr)
+	country, city := handler.queryIpLocation(info.RemoteAddr)
 
 	// save or update by country
 	if _, ok := handler.countryCityIpCountMap[country]; !ok {
