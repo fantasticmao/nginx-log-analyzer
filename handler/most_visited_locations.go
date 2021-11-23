@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"github.com/fantasticmao/nginx-log-analyzer/cache"
 	"github.com/fantasticmao/nginx-log-analyzer/ioutil"
 	"github.com/fantasticmao/nginx-log-analyzer/parser"
 	"github.com/oschwald/geoip2-golang"
@@ -24,14 +25,20 @@ const (
 )
 
 type MostVisitedLocationsHandler struct {
-	limitSecond int
-	geoLite2Db  *geoip2.Reader
+	limitSecond     int
+	geoLite2Db      *geoip2.Reader
+	ipLocationCache cache.Cache
 	// country -> count
 	countryCountMap map[string]int
 	// country -> city -> count
 	countryCityCountMap map[string]map[string]int
 	// country -> city -> ip -> count
 	countryCityIpCountMap map[string]map[string]map[string]int
+}
+
+type locationEntry struct {
+	country string
+	city    string
 }
 
 func NewMostVisitedLocationsHandler(dbFile string, limitSecond int) *MostVisitedLocationsHandler {
@@ -43,6 +50,7 @@ func NewMostVisitedLocationsHandler(dbFile string, limitSecond int) *MostVisited
 	return &MostVisitedLocationsHandler{
 		limitSecond:           limitSecond,
 		geoLite2Db:            db,
+		ipLocationCache:       cache.NewLruCache(1000),
 		countryCountMap:       make(map[string]int),
 		countryCityCountMap:   make(map[string]map[string]int),
 		countryCityIpCountMap: make(map[string]map[string]map[string]int),
@@ -50,8 +58,7 @@ func NewMostVisitedLocationsHandler(dbFile string, limitSecond int) *MostVisited
 }
 
 func (handler *MostVisitedLocationsHandler) Input(info *parser.LogInfo) {
-	ip := net.ParseIP(info.RemoteAddr)
-	country, city := handler.queryIpLocation(ip)
+	country, city := handler.queryIpLocation(info.RemoteAddr)
 
 	// save or update by country
 	if _, ok := handler.countryCityIpCountMap[country]; !ok {
@@ -123,8 +130,8 @@ func (handler *MostVisitedLocationsHandler) Output(limit int) {
 	}
 }
 
-func (handler *MostVisitedLocationsHandler) queryIpLocation(ip net.IP) (string, string) {
-	record, err := handler.geoLite2Db.City(ip)
+func (handler *MostVisitedLocationsHandler) queryIpLocation(ip string) (string, string) {
+	record, err := handler.geoLite2Db.City(net.ParseIP(ip))
 	if record == nil {
 		ioutil.Fatal("query from MaxMind-DB error: record is nil\n")
 		return "", ""
@@ -153,4 +160,15 @@ func (handler *MostVisitedLocationsHandler) queryIpLocation(ip net.IP) (string, 
 		}
 	}
 	return country, city
+}
+
+func (handler *MostVisitedLocationsHandler) cachedQueryIpLocation(ip string) (string, string) {
+	data := handler.ipLocationCache.Get(ip)
+	if data != nil {
+		return data.(*locationEntry).country, data.(*locationEntry).city
+	} else { // cache missed
+		country, city := handler.queryIpLocation(ip)
+		handler.ipLocationCache.Put(ip, &locationEntry{country: country, city: city})
+		return country, city
+	}
 }
