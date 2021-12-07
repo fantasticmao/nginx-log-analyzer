@@ -38,12 +38,13 @@ func TestNewPvAndUvHandler(t *testing.T) {
 	handler.Input(&parser.LogInfo{RemoteAddr: ip2})
 	handler.Input(&parser.LogInfo{RemoteAddr: ip2})
 	handler.Input(&parser.LogInfo{RemoteAddr: ip3})
+	handler.Output(limit)
 
-	assert.Equal(t, int32(6), handler.pv)
-	assert.Equal(t, int32(3), handler.uv)
+	assert.Equal(t, 6, handler.pv)
+	assert.Equal(t, 3, handler.uv)
 }
 
-func TestNewMostVisitedIpsHandler(t *testing.T) {
+func TestNewMostVisitedFieldsHandler_ips(t *testing.T) {
 	handler := NewMostVisitedFieldsHandler(AnalysisTypeVisitedIps)
 	handler.Input(&parser.LogInfo{RemoteAddr: ip1})
 	handler.Input(&parser.LogInfo{RemoteAddr: ip1})
@@ -51,13 +52,14 @@ func TestNewMostVisitedIpsHandler(t *testing.T) {
 	handler.Input(&parser.LogInfo{RemoteAddr: ip2})
 	handler.Input(&parser.LogInfo{RemoteAddr: ip2})
 	handler.Input(&parser.LogInfo{RemoteAddr: ip3})
+	handler.Output(limit)
 
 	assert.Equal(t, 3, handler.countMap[ip1])
 	assert.Equal(t, 2, handler.countMap[ip2])
 	assert.Equal(t, 1, handler.countMap[ip3])
 }
 
-func TestNewMostVisitedUrisHandler(t *testing.T) {
+func TestNewMostVisitedFieldsHandler_uris(t *testing.T) {
 	handler := NewMostVisitedFieldsHandler(AnalysisTypeVisitedUris)
 	handler.Input(&parser.LogInfo{Request: uri1})
 	handler.Input(&parser.LogInfo{Request: uri1})
@@ -65,13 +67,14 @@ func TestNewMostVisitedUrisHandler(t *testing.T) {
 	handler.Input(&parser.LogInfo{Request: uri2})
 	handler.Input(&parser.LogInfo{Request: uri2})
 	handler.Input(&parser.LogInfo{Request: uri3})
+	handler.Output(limit)
 
 	assert.Equal(t, 3, handler.countMap[uri1])
 	assert.Equal(t, 2, handler.countMap[uri2])
 	assert.Equal(t, 1, handler.countMap[uri3])
 }
 
-func TestNewMostVisitedUserAgentsHandler(t *testing.T) {
+func TestNewMostVisitedFieldsHandler_userAgents(t *testing.T) {
 	handler := NewMostVisitedFieldsHandler(AnalysisTypeVisitedUserAgents)
 	handler.Input(&parser.LogInfo{HttpUserAgent: userAgent1})
 	handler.Input(&parser.LogInfo{HttpUserAgent: userAgent1})
@@ -79,6 +82,7 @@ func TestNewMostVisitedUserAgentsHandler(t *testing.T) {
 	handler.Input(&parser.LogInfo{HttpUserAgent: userAgent2})
 	handler.Input(&parser.LogInfo{HttpUserAgent: userAgent2})
 	handler.Input(&parser.LogInfo{HttpUserAgent: userAgent3})
+	handler.Output(limit)
 
 	assert.Equal(t, 3, handler.countMap[userAgent1])
 	assert.Equal(t, 2, handler.countMap[userAgent2])
@@ -96,6 +100,7 @@ func TestNewMostVisitedLocationsHandler(t *testing.T) {
 	handler.Input(&parser.LogInfo{RemoteAddr: "2.125.160.216"}) // United Kingdom -> Boxford
 	handler.Input(&parser.LogInfo{RemoteAddr: "2.125.160.216"})
 	handler.Input(&parser.LogInfo{RemoteAddr: "2001:218::"}) // Japan -> unknown
+	handler.Output(limit)
 
 	assert.Equal(t, 3, handler.countryCountMap["中国 China"])
 	assert.Equal(t, 2, handler.countryCountMap["United Kingdom"])
@@ -121,6 +126,7 @@ func TestNewMostFrequentStatusHandler(t *testing.T) {
 	handler.Input(&parser.LogInfo{Status: responseStatus1, Request: uri2})
 	handler.Input(&parser.LogInfo{Status: responseStatus2, Request: uri2})
 	handler.Input(&parser.LogInfo{Status: responseStatus3, Request: uri3})
+	handler.Output(limit)
 
 	assert.Equal(t, 3, handler.statusCountMap[responseStatus1])
 	assert.Equal(t, 3, handler.statusCountMap[responseStatus2])
@@ -142,6 +148,7 @@ func TestNewLargestAverageTimeUrisHandler(t *testing.T) {
 	handler.Input(&parser.LogInfo{Request: uri2, RequestTime: responseTime1})
 	handler.Input(&parser.LogInfo{Request: uri2, RequestTime: responseTime2})
 	handler.Input(&parser.LogInfo{Request: uri3, RequestTime: responseTime1})
+	handler.Output(limit)
 
 	assert.Equal(t, []float64{responseTime1, responseTime2, responseTime3}, handler.timeCostListMap[uri1])
 	assert.Equal(t, []float64{responseTime1, responseTime2}, handler.timeCostListMap[uri2])
@@ -156,6 +163,7 @@ func TestNewLargestPercentTimeUrisHandler(t *testing.T) {
 	handler.Input(&parser.LogInfo{Request: uri2, RequestTime: responseTime2})
 	handler.Input(&parser.LogInfo{Request: uri2, RequestTime: responseTime3})
 	handler.Input(&parser.LogInfo{Request: uri3, RequestTime: responseTime3})
+	handler.Output(limit)
 
 	assert.Equal(t, []float64{responseTime1, responseTime2, responseTime3}, handler.timeCostListMap[uri1])
 	assert.Equal(t, []float64{responseTime2, responseTime3}, handler.timeCostListMap[uri2])

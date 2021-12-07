@@ -2,10 +2,10 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/fantasticmao/nginx-log-analyzer/handler"
 	"github.com/fantasticmao/nginx-log-analyzer/ioutil"
 	"github.com/fantasticmao/nginx-log-analyzer/parser"
+	"github.com/pterm/pterm"
 	"io"
 	"os"
 	"path"
@@ -26,7 +26,8 @@ var (
 )
 
 var (
-	Name       = "nginx-log-analyzer"
+	Name       = "Nginx Log Analyzer"
+	AppName    = "nginx-log-analyzer"
 	Version    string
 	BuildTime  string
 	CommitHash string
@@ -48,7 +49,7 @@ func init() {
 
 func main() {
 	if showVersion {
-		fmt.Printf("%v %v build at %v on commit %v\n", Name, Version, BuildTime, CommitHash)
+		version()
 		return
 	}
 
@@ -58,7 +59,7 @@ func main() {
 			ioutil.Fatal("get user home directory error: %v\n", err.Error())
 			return
 		}
-		configDir = path.Join(homeDir, ".config", Name)
+		configDir = path.Join(homeDir, ".config", AppName)
 	}
 
 	var (
@@ -166,4 +167,14 @@ func process(logFiles []string, p parser.Parser, h handler.Handler, since, util 
 
 	// 5. print result
 	h.Output(limit)
+}
+
+func version() {
+	pterm.DefaultParagraph.Println(Name)
+	data := pterm.TableData{
+		{"Version", Version},
+		{"Build At", BuildTime},
+		{"Last Commit", CommitHash},
+	}
+	_ = pterm.DefaultTable.WithData(data).Render()
 }

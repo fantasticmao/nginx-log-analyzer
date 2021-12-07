@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"fmt"
 	"github.com/fantasticmao/nginx-log-analyzer/ioutil"
 	"github.com/fantasticmao/nginx-log-analyzer/parser"
+	"github.com/pterm/pterm"
 	"sort"
 )
 
@@ -50,7 +50,13 @@ func (handler *MostVisitedFieldsHandler) Output(limit int) {
 		return handler.countMap[keys[i]] > handler.countMap[keys[j]]
 	})
 
+	data := pterm.Bars{}
 	for i := 0; i < limit && i < len(keys); i++ {
-		fmt.Printf("\"%v\" hits: %v\n", keys[i], handler.countMap[keys[i]])
+		data = append(data, pterm.Bar{
+			Label: keys[i],
+			Value: handler.countMap[keys[i]],
+		})
 	}
+	_ = pterm.DefaultBarChart.WithHorizontal().WithShowValue().
+		WithBars(data).Render()
 }

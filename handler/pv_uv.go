@@ -1,13 +1,14 @@
 package handler
 
 import (
-	"fmt"
 	"github.com/fantasticmao/nginx-log-analyzer/parser"
+	"github.com/pterm/pterm"
+	"strconv"
 )
 
 type PvAndUvHandler struct {
-	pv      int32
-	uv      int32
+	pv      int
+	uv      int
 	uniqMap map[string]bool
 }
 
@@ -28,6 +29,9 @@ func (handler *PvAndUvHandler) Input(info *parser.LogInfo) {
 }
 
 func (handler *PvAndUvHandler) Output(limit int) {
-	fmt.Printf("PV: %v\n", handler.pv)
-	fmt.Printf("UV: %v\n", handler.uv)
+	data := pterm.TableData{
+		{"PV", strconv.Itoa(handler.pv)},
+		{"UV", strconv.Itoa(handler.uv)},
+	}
+	_ = pterm.DefaultTable.WithData(data).Render()
 }
