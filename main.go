@@ -181,5 +181,5 @@ func version() {
 		{"Build At", BuildTime},
 		{"Last Commit", CommitHash},
 	}
-	_ = ioutil.PTermTable.WithData(data).Render()
+	_ = pterm.DefaultTable.WithData(data).Render()
 }

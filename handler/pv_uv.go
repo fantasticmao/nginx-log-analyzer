@@ -35,5 +35,6 @@ func (handler *PvAndUvHandler) Output(limit int) {
 		{"PV", strconv.Itoa(handler.pv)},
 		{"UV", strconv.Itoa(handler.uv)},
 	}
+	ioutil.PTermHeader.Printf("PV and UV")
 	_ = ioutil.PTermTable.WithData(data).Render()
 }

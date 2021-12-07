@@ -1,27 +1,19 @@
 package handler
 
 import (
-	"fmt"
 	"github.com/fantasticmao/nginx-log-analyzer/cache"
 	"github.com/fantasticmao/nginx-log-analyzer/ioutil"
 	"github.com/fantasticmao/nginx-log-analyzer/parser"
 	"github.com/oschwald/geoip2-golang"
+	"github.com/pterm/pterm"
 	"net"
 	"sort"
-	"strings"
+	"strconv"
 )
 
 const (
-	countryChina = "China"
-	countryJapan = "Japan"
-	areaHongKong = "Hong Kong"
-	areaTaiwan   = "Taiwan"
-	cityUnknown  = "unknown"
-)
-const (
-	languageEn   = "en"
-	languageJa   = "ja"
-	languageZhCn = "zh-CN"
+	languageEn  = "en"
+	cityUnknown = "unknown"
 )
 
 type MostVisitedLocationsHandler struct {
@@ -96,10 +88,13 @@ func (handler *MostVisitedLocationsHandler) Output(limit int) {
 		return handler.countryCountMap[countryCountKeys[i]] > handler.countryCountMap[countryCountKeys[j]]
 	})
 
+	data := pterm.TableData{
+		{"Country/Area", "City", "IP", "Count"},
+	}
 	for i := 0; i < len(countryCountKeys); i++ {
 		country := countryCountKeys[i]
 		cityIpCountMap := handler.countryCityIpCountMap[country]
-		fmt.Printf("[%v] hits: %v\n", country, handler.countryCountMap[country])
+		data = append(data, []string{country, "", "", strconv.Itoa(handler.countryCountMap[country])})
 
 		cityCountKeys := make([]string, 0, len(cityIpCountMap))
 		for k := range cityIpCountMap {
@@ -112,7 +107,7 @@ func (handler *MostVisitedLocationsHandler) Output(limit int) {
 		for j := 0; j < handler.limitSecond && j < len(cityCountKeys); j++ {
 			city := cityCountKeys[j]
 			ipCountMap := cityIpCountMap[city]
-			fmt.Printf("  |--[%v] hits: %v\n", city, handler.countryCityCountMap[country][city])
+			data = append(data, []string{"", city, "", strconv.Itoa(handler.countryCityCountMap[country][city])})
 
 			ipCountKeys := make([]string, 0, len(ipCountMap))
 			for k := range ipCountMap {
@@ -124,10 +119,13 @@ func (handler *MostVisitedLocationsHandler) Output(limit int) {
 
 			for k := 0; k < limit && k < len(ipCountKeys); k++ {
 				ip := ipCountKeys[k]
-				fmt.Printf("  |  |--\"%v\" hits: %v\n", ip, ipCountMap[ip])
+				data = append(data, []string{"", "", ip, strconv.Itoa(ipCountMap[ip])})
 			}
 		}
 	}
+
+	ioutil.PTermHeader.Printf("Most visited user countries and cities")
+	_ = ioutil.PTermTable.WithData(data).Render()
 }
 
 func (handler *MostVisitedLocationsHandler) queryIpLocation(ip string) (string, string) {
@@ -145,19 +143,6 @@ func (handler *MostVisitedLocationsHandler) queryIpLocation(ip string) (string, 
 	city := record.City.Names[languageEn]
 	if city == "" {
 		city = cityUnknown
-	}
-
-	if strings.EqualFold(countryChina, country) || strings.EqualFold(areaHongKong, country) ||
-		strings.EqualFold(areaTaiwan, country) {
-		country = fmt.Sprintf("%s %s", record.Country.Names[languageZhCn], country)
-		if city != cityUnknown && record.City.Names[languageZhCn] != "" {
-			city = fmt.Sprintf("%s %s", record.City.Names[languageZhCn], city)
-		}
-	} else if strings.EqualFold(countryJapan, country) {
-		country = fmt.Sprintf("%s %s", record.Country.Names[languageJa], country)
-		if city != cityUnknown && record.City.Names[languageJa] != "" {
-			city = fmt.Sprintf("%s %s", record.City.Names[languageJa], city)
-		}
 	}
 	return country, city
 }

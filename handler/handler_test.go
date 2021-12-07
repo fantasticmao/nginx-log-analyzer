@@ -102,17 +102,17 @@ func TestNewMostVisitedLocationsHandler(t *testing.T) {
 	handler.Input(&parser.LogInfo{RemoteAddr: "2001:218::"}) // Japan -> unknown
 	handler.Output(limit)
 
-	assert.Equal(t, 3, handler.countryCountMap["中国 China"])
+	assert.Equal(t, 3, handler.countryCountMap["China"])
 	assert.Equal(t, 2, handler.countryCountMap["United Kingdom"])
-	assert.Equal(t, 1, handler.countryCountMap["日本 Japan"])
+	assert.Equal(t, 1, handler.countryCountMap["Japan"])
 
-	assert.Equal(t, 3, handler.countryCityCountMap["中国 China"]["长春 Changchun"])
+	assert.Equal(t, 3, handler.countryCityCountMap["China"]["Changchun"])
 	assert.Equal(t, 2, handler.countryCityCountMap["United Kingdom"]["Boxford"])
-	assert.Equal(t, 1, handler.countryCityCountMap["日本 Japan"]["unknown"])
+	assert.Equal(t, 1, handler.countryCityCountMap["Japan"]["unknown"])
 
-	assert.Equal(t, 3, handler.countryCityIpCountMap["中国 China"]["长春 Changchun"]["175.16.199.0"])
+	assert.Equal(t, 3, handler.countryCityIpCountMap["China"]["Changchun"]["175.16.199.0"])
 	assert.Equal(t, 2, handler.countryCityIpCountMap["United Kingdom"]["Boxford"]["2.125.160.216"])
-	assert.Equal(t, 1, handler.countryCityIpCountMap["日本 Japan"]["unknown"]["2001:218::"])
+	assert.Equal(t, 1, handler.countryCityIpCountMap["Japan"]["unknown"]["2001:218::"])
 }
 
 func TestNewMostFrequentStatusHandler(t *testing.T) {
@@ -156,7 +156,7 @@ func TestNewLargestAverageTimeUrisHandler(t *testing.T) {
 }
 
 func TestNewLargestPercentTimeUrisHandler(t *testing.T) {
-	handler := NewLargestPercentTimeUrisHandler(50)
+	handler := NewLargestPercentTimeUrisHandler(30)
 	handler.Input(&parser.LogInfo{Request: uri1, RequestTime: responseTime1})
 	handler.Input(&parser.LogInfo{Request: uri1, RequestTime: responseTime2})
 	handler.Input(&parser.LogInfo{Request: uri1, RequestTime: responseTime3})

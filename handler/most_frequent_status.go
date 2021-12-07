@@ -1,9 +1,11 @@
 package handler
 
 import (
-	"fmt"
+	"github.com/fantasticmao/nginx-log-analyzer/ioutil"
 	"github.com/fantasticmao/nginx-log-analyzer/parser"
+	"github.com/pterm/pterm"
 	"sort"
+	"strconv"
 )
 
 type MostFrequentStatusHandler struct {
@@ -42,10 +44,13 @@ func (handler *MostFrequentStatusHandler) Output(limit int) {
 	}
 	sort.Ints(statusCountKeys)
 
+	data := pterm.TableData{
+		{"HTTP Status", "Request", "Count"},
+	}
 	for _, status := range statusCountKeys {
 		count := handler.statusCountMap[status]
 		uriCountMap := handler.statusUriCountMap[status]
-		fmt.Printf("%v hits: %v\n", status, count)
+		data = append(data, []string{strconv.Itoa(status), "", strconv.Itoa(count)})
 
 		uriCountKeys := make([]string, 0, len(uriCountMap))
 		for k := range uriCountMap {
@@ -57,7 +62,10 @@ func (handler *MostFrequentStatusHandler) Output(limit int) {
 
 		for i := 0; i < limit && i < len(uriCountKeys); i++ {
 			uri := uriCountKeys[i]
-			fmt.Printf("  |--\"%v\" hits: %v\n", uri, uriCountMap[uri])
+			data = append(data, []string{"", uri, strconv.Itoa(uriCountMap[uri])})
 		}
 	}
+
+	ioutil.PTermHeader.Printf("Most frequent response status")
+	_ = ioutil.PTermTable.WithData(data).Render()
 }
