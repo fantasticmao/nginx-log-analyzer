@@ -124,8 +124,14 @@ func newLogParser() parser.Parser {
 }
 
 func process(logFiles []string, p parser.Parser, h handler.Handler, since, util time.Time) {
+	bar, _ := pterm.DefaultProgressbar.WithTitle("Processing log files").WithTotal(len(logFiles)).
+		WithRemoveWhenDone().Start()
 	for _, logFile := range logFiles {
-		// 1. open and read file
+		// 1. update progress bar
+		bar.UpdateTitle("Processing " + logFile)
+		bar.Increment()
+
+		// 2. open and read file
 		file, isGzip := ioutil.OpenFile(logFile)
 		reader := ioutil.ReadFile(file, isGzip)
 		for {
@@ -137,10 +143,10 @@ func process(logFiles []string, p parser.Parser, h handler.Handler, since, util 
 				return
 			}
 
-			// 2. parse line
+			// 3. parse line
 			logInfo := p.ParseLog(data)
 
-			// 3. datetime filter
+			// 4. datetime filter
 			if !since.IsZero() || !util.IsZero() {
 				logTime := parser.ParseTime(logInfo.TimeLocal)
 				if !since.IsZero() && logTime.Before(since) {
@@ -153,11 +159,11 @@ func process(logFiles []string, p parser.Parser, h handler.Handler, since, util 
 				}
 			}
 
-			// 4. process data
+			// 5. process data
 			h.Input(logInfo)
 		}
 
-		// 5. close file handler
+		// 6. close file handler
 		err := file.Close()
 		if err != nil {
 			ioutil.Fatal("close file error: %v\n", err.Error())
@@ -165,7 +171,7 @@ func process(logFiles []string, p parser.Parser, h handler.Handler, since, util 
 		}
 	}
 
-	// 5. print result
+	// 7. print result
 	h.Output(limit)
 }
 
