@@ -124,8 +124,7 @@ func newLogParser() parser.Parser {
 }
 
 func process(logFiles []string, p parser.Parser, h handler.Handler, since, util time.Time) {
-	bar, _ := pterm.DefaultProgressbar.WithTitle("Processing log files").WithTotal(len(logFiles)).
-		WithRemoveWhenDone().Start()
+	bar, _ := ioutil.PTermProgressbar.WithTitle("Processing log files").WithTotal(len(logFiles)).Start()
 	for _, logFile := range logFiles {
 		// 1. update progress bar
 		bar.UpdateTitle("Processing " + logFile)
@@ -176,11 +175,11 @@ func process(logFiles []string, p parser.Parser, h handler.Handler, since, util 
 }
 
 func version() {
-	pterm.DefaultParagraph.Println(Name)
+	ioutil.PTermParagraph.Println(Name)
 	data := pterm.TableData{
 		{"Version", Version},
 		{"Build At", BuildTime},
 		{"Last Commit", CommitHash},
 	}
-	_ = pterm.DefaultTable.WithData(data).Render()
+	_ = ioutil.PTermTable.WithData(data).Render()
 }

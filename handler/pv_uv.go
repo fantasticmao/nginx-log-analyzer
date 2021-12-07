@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/fantasticmao/nginx-log-analyzer/ioutil"
 	"github.com/fantasticmao/nginx-log-analyzer/parser"
 	"github.com/pterm/pterm"
 	"strconv"
@@ -30,8 +31,9 @@ func (handler *PvAndUvHandler) Input(info *parser.LogInfo) {
 
 func (handler *PvAndUvHandler) Output(limit int) {
 	data := pterm.TableData{
+		{"PV/UV", "Count"},
 		{"PV", strconv.Itoa(handler.pv)},
 		{"UV", strconv.Itoa(handler.uv)},
 	}
-	_ = pterm.DefaultTable.WithData(data).Render()
+	_ = ioutil.PTermTable.WithData(data).Render()
 }

@@ -57,6 +57,17 @@ func (handler *MostVisitedFieldsHandler) Output(limit int) {
 			Value: handler.countMap[keys[i]],
 		})
 	}
-	_ = pterm.DefaultBarChart.WithHorizontal().WithShowValue().
-		WithBars(data).Render()
+
+	switch handler.analysisType {
+	case AnalysisTypeVisitedIps:
+		ioutil.PTermHeader.Println("Most visited IPs")
+	case AnalysisTypeVisitedUris:
+		ioutil.PTermHeader.Println("Most visited URIs")
+	case AnalysisTypeVisitedUserAgents:
+		ioutil.PTermHeader.Println("Most visited User-Agents")
+	default:
+		ioutil.Fatal("unsupported analysis type: %v\n", handler.analysisType)
+		return
+	}
+	_ = ioutil.PTermBarChart.WithBars(data).Render()
 }

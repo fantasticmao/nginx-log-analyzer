@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"fmt"
 	"github.com/fantasticmao/nginx-log-analyzer/ioutil"
 	"github.com/fantasticmao/nginx-log-analyzer/parser"
+	"github.com/pterm/pterm"
 	"math"
 	"sort"
 )
@@ -52,7 +52,14 @@ func (handler *LargestPercentTimeUrisHandler) Output(limit int) {
 		return timeCostMap[keys[i]] > timeCostMap[keys[j]]
 	})
 
+	data := pterm.Bars{}
 	for i := 0; i < limit && i < len(keys); i++ {
-		fmt.Printf("\"%v\" P%.2f response-time: %.3f\n", keys[i], handler.percentile, timeCostMap[keys[i]])
+		data = append(data, pterm.Bar{
+			Label: keys[i],
+			Value: int(timeCostMap[keys[i]] * 1000),
+		})
 	}
+
+	ioutil.PTermHeader.Printf("Largest percentile(P%.2f) response time(millisecond) URIs", handler.percentile)
+	_ = ioutil.PTermBarChart.WithBars(data).Render()
 }
