@@ -28,7 +28,7 @@ darwin-arm64:
 	GOARCH=arm64 GOOS=darwin $(GO_BUILD) -o $(BIN_DIR)/$(NAME)-$@
 
 linux-amd64:
-	GOARCH=amd64 GOOS=linux $(GO_BUILD) -o ./$(BIN_DIR)/$(NAME)-$@
+	GOARCH=amd64 GOOS=linux $(GO_BUILD) -o $(BIN_DIR)/$(NAME)-$@
 
 linux-armv5:
 	GOARCH=arm GOOS=linux GOARM=5 $(GO_BUILD) -o $(BIN_DIR)/$(NAME)-$@
@@ -46,7 +46,7 @@ windows-amd64:
 	GOARCH=amd64 GOOS=windows $(GO_BUILD) -o $(BIN_DIR)/$(NAME)-$@.exe
 
 test:
-	go test ./... -v
+	go test ./... -race -coverprofile=coverage.txt -covermode=atomic -v
 
 .PHONY: test
 
